@@ -3,425 +3,496 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pantalla 1 — Contexto y Problema (Panel futurista)</title>
-
+  <title>Defensa TFM - Zython</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     * { font-family: 'Fredoka', sans-serif; }
-    :focus-visible{ outline: 3px solid rgba(96,165,250,.85); outline-offset: 3px; border-radius: 16px; }
 
     :root{
       --card: rgba(255,255,255,.10);
       --border: rgba(255,255,255,.18);
       --shadow: 0 18px 60px rgba(0,0,0,.45);
       --radius: 24px;
-      --accent: #60a5fa;
-      --accent2:#a78bfa;
-      --good: #34d399;
-      --warn: #fbbf24;
-      --bad: #fb7185;
+      --accent: #60a5fa;  /* blue-400 */
+      --accent2:#a78bfa;  /* purple-400 */
+    }
+
+    :focus-visible{
+      outline: 3px solid rgba(96,165,250,.8);
+      outline-offset: 3px;
     }
 
     @keyframes gradientShift {
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
     }
-    body{
+
+    body {
       background: linear-gradient(-45deg, #1a0b2e, #16213e, #0f3460, #533483);
       background-size: 400% 400%;
       animation: gradientShift 15s ease infinite;
-      min-height:100vh;
-      overflow-x:hidden;
-      padding-top: 92px; /* header fijo */
+      padding-top: 92px; /* espacio para header fijo */
     }
 
-    /* Fondo estrellas */
-    .stars{
-      position: fixed; inset:0;
-      pointer-events:none; z-index:0;
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(147, 51, 234, 0.4); }
+      50% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.9), 0 0 90px rgba(147, 51, 234, 0.6); }
+    }
+    @keyframes titleGlow {
+      0%, 100% {
+        text-shadow: 0 0 20px rgba(59, 130, 246, 0.8),
+                     0 0 40px rgba(147, 51, 234, 0.6),
+                     0 0 60px rgba(236, 72, 153, 0.4);
+      }
+      50% {
+        text-shadow: 0 0 30px rgba(59, 130, 246, 1),
+                     0 0 60px rgba(147, 51, 234, 0.8),
+                     0 0 90px rgba(236, 72, 153, 0.6);
+      }
+    }
+
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-float2 { animation: float2 5.2s ease-in-out infinite; }
+    .animate-fade-in-scale { animation: fadeInScale 0.8s ease-out; }
+    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    .title-hero { animation: titleGlow 3s ease-in-out infinite; }
+
+    .stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
       transition: transform .2s ease;
     }
-    .star{
-      position:absolute;
-      background:white; border-radius:50%;
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
       animation: twinkle 3s infinite;
-      box-shadow: 0 0 4px rgba(255,255,255,.8);
-      opacity:.8;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
     }
-    @keyframes twinkle{
-      0%,100%{ opacity:.25; transform: scale(1); }
-      50%{ opacity:1; transform: scale(1.2); }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
     }
 
-    /* Glass */
-    .glass-card{
+    .glass-card {
       background: var(--card);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       border-radius: var(--radius);
     }
 
-    /* Halo / grid futurista */
-    .grid-holo{
-      position:absolute; inset:-40px;
-      background:
-        radial-gradient(circle at 25% 30%, rgba(96,165,250,.14), transparent 40%),
-        radial-gradient(circle at 75% 20%, rgba(167,139,250,.12), transparent 45%),
-        radial-gradient(circle at 60% 80%, rgba(34,211,238,.10), transparent 45%),
-        linear-gradient(transparent 0 0),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 28px),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 28px);
-      mask-image: radial-gradient(circle at 50% 30%, rgba(0,0,0,1), rgba(0,0,0,.4) 55%, rgba(0,0,0,0) 78%);
-      opacity:.65;
-      pointer-events:none;
-      z-index:0;
-      filter: blur(.1px);
+    .btn-3d {
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.2);
     }
+    .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 30px rgba(0, 0, 0, 0.3); }
+    .btn-3d:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2); }
 
-    /* Animación de flotación */
-    @keyframes floatA { 0%,100%{ transform: translateY(0px);} 50%{ transform: translateY(-10px);} }
-    @keyframes floatB { 0%,100%{ transform: translateY(0px);} 50%{ transform: translateY(-14px);} }
-    @keyframes floatC { 0%,100%{ transform: translateY(0px);} 50%{ transform: translateY(-8px);} }
-
-    .float-a{ animation: floatA 4.5s ease-in-out infinite; }
-    .float-b{ animation: floatB 5.2s ease-in-out infinite; }
-    .float-c{ animation: floatC 3.8s ease-in-out infinite; }
-
-    /* Botón premium */
-    .btn-3d{
-      transition: all .3s ease;
-      box-shadow: 0 6px 0 rgba(0,0,0,.3), 0 10px 20px rgba(0,0,0,.2);
-    }
-    .btn-3d:hover{ transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0,0,0,.3), 0 15px 30px rgba(0,0,0,.3); }
-    .btn-3d:active{ transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,.3), 0 5px 10px rgba(0,0,0,.2); }
-    .btn-premium{ position:relative; overflow:hidden; }
+    .btn-premium { position: relative; overflow: hidden; }
     .btn-premium::after{
       content:"";
-      position:absolute; inset:-120%;
+      position:absolute;
+      inset:-120%;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
       transform: rotate(25deg) translateX(-40%);
       transition: transform .6s ease;
-      pointer-events:none;
+      pointer-events: none;
     }
     .btn-premium:hover::after{ transform: rotate(25deg) translateX(40%); }
 
-    /* Chips */
     .chip{
       background: rgba(255,255,255,.08);
       border: 1px solid rgba(255,255,255,.14);
       border-radius: 9999px;
     }
 
-    /* Panel lateral (detalle) */
-    .drawer{
+    /* Overlay "pantalla grande" (NO drawer) */
+    #card-modal {
       position: fixed;
-      top: 92px; right: 0;
-      width: min(520px, 92vw);
-      height: calc(100vh - 92px);
-      transform: translateX(105%);
-      transition: transform .28s ease;
-      z-index: 60;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
     }
-    .drawer.open{ transform: translateX(0); }
-    .drawer::before{
-      content:"";
-      position:absolute; inset:0;
-      background: radial-gradient(circle at 20% 20%, rgba(96,165,250,.18), transparent 45%),
-                  radial-gradient(circle at 70% 10%, rgba(167,139,250,.14), transparent 45%);
-      pointer-events:none;
-      border-radius: var(--radius);
-      opacity:.9;
+    #card-modal.show { display: flex; }
+
+    #card-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.70);
+      backdrop-filter: blur(6px);
     }
 
-    .drawer-backdrop{
-      position: fixed; inset:0;
-      background: rgba(0,0,0,.45);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      z-index: 55;
-      opacity: 0;
-      pointer-events:none;
-      transition: opacity .28s ease;
-    }
-    .drawer-backdrop.show{
-      opacity: 1;
-      pointer-events:auto;
+    .modal-shell{
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      border-radius: 28px;
+      overflow: hidden;
     }
 
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      *{ animation:none !important; transition:none !important; }
+    .holo-grid {
+      position: absolute;
+      inset: -40px;
+      background:
+        radial-gradient(circle at 25% 30%, rgba(96,165,250,.14), transparent 40%),
+        radial-gradient(circle at 75% 20%, rgba(167,139,250,.12), transparent 45%),
+        radial-gradient(circle at 60% 80%, rgba(34,211,238,.10), transparent 45%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 28px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 28px);
+      mask-image: radial-gradient(circle at 50% 30%, rgba(0,0,0,1), rgba(0,0,0,.4) 55%, rgba(0,0,0,0) 78%);
+      opacity: .75;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
 
-<body class="text-white">
-  <div class="stars" id="stars" aria-hidden="true"></div>
+<body class="min-h-screen text-white overflow-x-hidden">
+  <div class="stars" id="stars"></div>
 
-  <!-- Header fijo estilo Zython -->
+  <!-- Header fijo tipo app -->
   <header class="fixed top-0 left-0 right-0 z-50 px-4 py-3">
     <div class="max-w-6xl mx-auto glass-card rounded-2xl px-5 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl">🪐</div>
         <div>
           <div class="font-bold leading-none">Zython</div>
-          <div class="text-xs text-white/70">Defensa TFM · Pantalla 1</div>
+          <div class="text-xs text-white/70" id="header-subtitle">Portada</div>
         </div>
       </div>
 
-      <div class="hidden md:flex items-center gap-2">
-        <span class="chip px-3 py-1 text-xs text-white/80">Panel futurista</span>
-        <span class="chip px-3 py-1 text-xs text-white/80">Tarjetas flotantes</span>
+      <div class="hidden md:flex items-center gap-3 w-[360px]">
+        <div class="text-xs text-white/70">Progreso</div>
+        <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+          <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-[0%]"></div>
+        </div>
+        <div id="progress-text" class="text-xs text-white/70 w-12 text-right">0%</div>
       </div>
 
       <button
         class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-        title="Volver"
-        onclick="history.back()"
+        title="Volver al inicio"
         type="button"
+        onclick="goToStep(0)"
       >
-        ⬅️ Volver
+        ⬅️ Inicio
       </button>
     </div>
   </header>
 
-  <!-- Backdrop para drawer -->
-  <div id="drawerBackdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <div class="relative z-10 min-h-screen flex flex-col">
 
-  <!-- Drawer (detalle al hacer clic) -->
-  <aside id="drawer" class="drawer p-4" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
-    <div class="relative glass-card h-full rounded-3xl overflow-hidden">
-      <div class="relative z-10 h-full flex flex-col">
-        <div class="px-5 py-4 border-b border-white/10 flex items-start justify-between gap-3">
-          <div>
-            <div class="text-xs text-white/70">Detalle</div>
-            <h3 id="drawerTitle" class="text-xl font-bold">—</h3>
-          </div>
-          <button id="closeDrawerBtn"
-            class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-            aria-label="Cerrar"
-            type="button"
-          >
-            ✕
-          </button>
-        </div>
+    <!-- STEP 0: Portada (tu estilo) -->
+    <div id="step-0" class="step-container min-h-screen flex flex-col items-center justify-center p-6">
+      <div class="max-w-6xl text-center animate-fade-in-scale">
+        <div class="text-9xl mb-12 animate-float">🚀</div>
 
-        <div class="px-5 py-5 overflow-auto space-y-4 relative z-10">
-          <div id="drawerBadge" class="inline-flex items-center gap-2 chip px-3 py-1 text-sm">
-            <span id="drawerIcon">✨</span>
-            <span id="drawerTag" class="text-white/80">—</span>
-          </div>
+        <h1 class="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent title-hero leading-tight">
+          EXPLORACIÓN<br/>DE ZYTHON
+        </h1>
 
-          <div class="glass-card rounded-3xl p-5">
-            <p id="drawerText" class="text-white/90 leading-relaxed">
-              —
-            </p>
-          </div>
-
-          <div class="glass-card rounded-3xl p-5">
-            <p class="text-sm text-white/70 mb-2 font-semibold">Notas (para ti)</p>
-            <ul id="drawerBullets" class="text-white/85 space-y-2 list-none">
-              <!-- JS -->
-            </ul>
-          </div>
-
-          <p class="text-xs text-white/55">
-            Tip: Mantén este texto MUY corto. Tú explicas oralmente; la pantalla solo guía.
+        <div class="max-w-4xl mx-auto mt-10 glass-card p-6 md:p-8">
+          <p class="text-sm md:text-base text-white/70 mb-2">Trabajo Fin de Máster</p>
+          <h2 class="text-2xl md:text-4xl font-bold text-white/95 leading-snug">
+            Diseño de una unidad didáctica mediante el uso de robótica para promover el pensamiento matemático y computacional en 4.º de Primaria
+          </h2>
+          <p class="mt-4 text-lg md:text-xl text-white/90">
+            <span class="text-white/70">Estudiante:</span>
+            <span class="font-bold">Maileen Julissa Hoyos Castellanos</span>
           </p>
         </div>
 
-        <div class="px-5 py-4 border-t border-white/10 flex gap-3">
-          <button id="prevCardBtn"
-            class="flex-1 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-            type="button"
-          >
-            ← Anterior
-          </button>
-          <button id="nextCardBtn"
-            class="flex-1 px-4 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 transition font-bold btn-3d btn-premium"
-            type="button"
-          >
-            Siguiente →
+        <div class="mt-10">
+          <button onclick="nextStep()"
+            class="px-16 py-8 bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 rounded-3xl font-bold text-4xl transition-all duration-300 transform hover:scale-110 animate-pulse-glow btn-3d btn-premium">
+            Iniciar 🌟
           </button>
         </div>
       </div>
     </div>
-  </aside>
 
-  <!-- Contenido principal -->
-  <main class="relative z-10">
-    <section class="max-w-6xl mx-auto px-6 pt-10 pb-16">
-      <div class="relative glass-card rounded-3xl p-6 md:p-8 overflow-hidden">
-        <div class="grid-holo"></div>
+    <!-- STEP 1: PANTALLA 1 (panel futurista con tarjetas flotantes) -->
+    <div id="step-1" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden">
+          <div class="holo-grid" aria-hidden="true"></div>
 
-        <div class="relative z-10 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <div class="flex flex-wrap items-center gap-2 mb-3">
-              <span class="chip px-3 py-1 text-xs text-white/80">Pantalla 1</span>
-              <span class="chip px-3 py-1 text-xs text-white/80">Contexto & problema educativo</span>
-            </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">
-              Panel de diagnóstico
-            </h1>
-            <p class="text-white/75 mt-2 max-w-2xl">
-              Toca una tarjeta para ver el detalle. Mantén la vista limpia, futurista y con información por capas.
-            </p>
-          </div>
-
-          <button id="openFirstBtn"
-            class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 font-bold btn-3d btn-premium"
-            type="button"
-          >
-            Abrir primer panel ▶
-          </button>
-        </div>
-
-        <!-- Tarjetas flotantes -->
-        <div class="relative z-10 mt-8 grid md:grid-cols-12 gap-6">
-          <!-- Columna izquierda: tarjeta central -->
-          <div class="md:col-span-5">
-            <div class="glass-card rounded-3xl p-6 float-a">
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🚀</div>
-                  <div>
-                    <div class="text-sm text-white/70">Núcleo</div>
-                    <div class="text-xl font-bold">Propuesta (Zython)</div>
-                  </div>
-                </div>
-                <span class="chip px-3 py-1 text-xs text-white/80">Resumen</span>
+          <div class="relative z-10 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div class="flex flex-wrap items-center gap-2 mb-3">
+                <span class="chip px-3 py-1 text-xs text-white/80">Pantalla 1</span>
+                <span class="chip px-3 py-1 text-xs text-white/80">Contexto & problema educativo</span>
               </div>
-
-              <p class="text-white/85 mt-4 leading-relaxed">
-                Unidad didáctica gamificada con robótica educativa para promover pensamiento matemático y computacional en 4.º de Primaria.
+              <h2 class="text-3xl md:text-4xl font-extrabold leading-tight">
+                Panel de diagnóstico
+              </h2>
+              <p class="text-white/75 mt-2 max-w-2xl">
+                Haz clic en una tarjeta para desplegar la información en pantalla completa.
               </p>
+            </div>
 
-              <div class="mt-5 flex flex-wrap gap-2">
-                <span class="chip px-3 py-1 text-xs text-white/80">Robótica</span>
-                <span class="chip px-3 py-1 text-xs text-white/80">Gamificación</span>
-                <span class="chip px-3 py-1 text-xs text-white/80">Pensamiento matemático</span>
-                <span class="chip px-3 py-1 text-xs text-white/80">Pensamiento computacional</span>
-              </div>
-
-              <button class="mt-6 w-full px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-                type="button"
-                onclick="openDrawerById('core')"
-              >
-                Ver detalle del núcleo ✨
+            <div class="flex gap-3">
+              <button onclick="previousStep()"
+                class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium">
+                ← Atrás
+              </button>
+              <button onclick="nextStep()"
+                class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 transition font-bold btn-3d btn-premium">
+                Siguiente →
               </button>
             </div>
           </div>
 
-          <!-- Columna derecha: tarjetas -->
-          <div class="md:col-span-7">
-            <div class="grid sm:grid-cols-2 gap-6">
-              <button class="glass-card rounded-3xl p-6 text-left float-b hover:bg-white/10 transition"
-                type="button" onclick="openDrawerById('math')">
-                <div class="flex items-center justify-between">
+          <!-- TARJETAS -->
+          <div class="relative z-10 mt-8 grid md:grid-cols-12 gap-6">
+            <!-- Núcleo -->
+            <div class="md:col-span-5">
+              <div class="glass-card rounded-3xl p-6 animate-float">
+                <div class="flex items-center justify-between gap-3">
                   <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🧠</div>
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🚀</div>
                     <div>
-                      <div class="text-sm text-white/70">Dimensión</div>
-                      <div class="text-lg font-bold">Pensamiento matemático</div>
+                      <div class="text-sm text-white/70">Núcleo</div>
+                      <div class="text-xl font-bold">Propuesta (Zython)</div>
                     </div>
                   </div>
-                  <span class="text-white/60">↗</span>
+                  <span class="chip px-3 py-1 text-xs text-white/80">Resumen</span>
                 </div>
-                <p class="mt-3 text-white/80">
-                  Dificultades y necesidad de experiencias concretas y contextualizadas.
-                </p>
-              </button>
 
-              <button class="glass-card rounded-3xl p-6 text-left float-c hover:bg-white/10 transition"
-                type="button" onclick="openDrawerById('ct')">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">💻</div>
-                    <div>
-                      <div class="text-sm text-white/70">Dimensión</div>
-                      <div class="text-lg font-bold">Pensamiento computacional</div>
-                    </div>
-                  </div>
-                  <span class="text-white/60">↗</span>
-                </div>
-                <p class="mt-3 text-white/80">
-                  Secuencias, condicionales, bucles y depuración integrados con matemáticas.
+                <p class="text-white/85 mt-4 leading-relaxed">
+                  Unidad didáctica gamificada con robótica educativa para promover pensamiento matemático y computacional en 4.º de Primaria.
                 </p>
-              </button>
 
-              <button class="glass-card rounded-3xl p-6 text-left float-c hover:bg-white/10 transition"
-                type="button" onclick="openDrawerById('motivation')">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🔥</div>
-                    <div>
-                      <div class="text-sm text-white/70">Dimensión</div>
-                      <div class="text-lg font-bold">Motivación</div>
-                    </div>
-                  </div>
-                  <span class="text-white/60">↗</span>
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <span class="chip px-3 py-1 text-xs text-white/80">Robótica</span>
+                  <span class="chip px-3 py-1 text-xs text-white/80">Gamificación</span>
+                  <span class="chip px-3 py-1 text-xs text-white/80">PM</span>
+                  <span class="chip px-3 py-1 text-xs text-white/80">PC</span>
                 </div>
-                <p class="mt-3 text-white/80">
-                  Gamificación y retos para sostener el compromiso del alumnado.
-                </p>
-              </button>
 
-              <button class="glass-card rounded-3xl p-6 text-left float-b hover:bg-white/10 transition"
-                type="button" onclick="openDrawerById('collab')">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🤝</div>
-                    <div>
-                      <div class="text-sm text-white/70">Dimensión</div>
-                      <div class="text-lg font-bold">Colaboración</div>
-                    </div>
-                  </div>
-                  <span class="text-white/60">↗</span>
-                </div>
-                <p class="mt-3 text-white/80">
-                  Organización del trabajo en equipo y roles durante los retos.
-                </p>
-              </button>
-            </div>
-
-            <div class="mt-6 glass-card rounded-3xl p-6">
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🧩</div>
-                  <div>
-                    <div class="text-sm text-white/70">Dimensión</div>
-                    <div class="text-lg font-bold">Robótica educativa</div>
-                  </div>
-                </div>
-                <button class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-                  type="button" onclick="openDrawerById('robotics')">
-                  Ver ↗
+                <button
+                  class="mt-6 w-full px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+                  type="button"
+                  onclick="openCardModal('core')">
+                  Abrir panel ✨
                 </button>
               </div>
-              <p class="mt-3 text-white/80">
-                Medio tecnopedagógico para conectar lo abstracto con lo concreto y favorecer aprendizaje activo.
-              </p>
             </div>
 
-            <p class="mt-4 text-xs text-white/55">
-              ⚙️ Personaliza el texto de cada tarjeta con frases EXACTAS de tu TFM (sin añadir nada externo).
-            </p>
+            <!-- Dimensiones -->
+            <div class="md:col-span-7">
+              <div class="grid sm:grid-cols-2 gap-6">
+                <button class="glass-card rounded-3xl p-6 text-left animate-float2 hover:bg-white/10 transition"
+                  type="button" onclick="openCardModal('math')">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🧠</div>
+                      <div>
+                        <div class="text-sm text-white/70">Dimensión</div>
+                        <div class="text-lg font-bold">Pensamiento matemático</div>
+                      </div>
+                    </div>
+                    <span class="text-white/60">↗</span>
+                  </div>
+                  <p class="mt-3 text-white/80">
+                    Dificultades y necesidad de experiencias concretas y contextualizadas.
+                  </p>
+                </button>
+
+                <button class="glass-card rounded-3xl p-6 text-left animate-float hover:bg-white/10 transition"
+                  type="button" onclick="openCardModal('ct')">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">💻</div>
+                      <div>
+                        <div class="text-sm text-white/70">Dimensión</div>
+                        <div class="text-lg font-bold">Pensamiento computacional</div>
+                      </div>
+                    </div>
+                    <span class="text-white/60">↗</span>
+                  </div>
+                  <p class="mt-3 text-white/80">
+                    Secuencias, condicionales, bucles y depuración integrados con matemáticas.
+                  </p>
+                </button>
+
+                <button class="glass-card rounded-3xl p-6 text-left animate-float hover:bg-white/10 transition"
+                  type="button" onclick="openCardModal('motivation')">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🔥</div>
+                      <div>
+                        <div class="text-sm text-white/70">Dimensión</div>
+                        <div class="text-lg font-bold">Motivación</div>
+                      </div>
+                    </div>
+                    <span class="text-white/60">↗</span>
+                  </div>
+                  <p class="mt-3 text-white/80">
+                    Gamificación y retos para sostener el compromiso del alumnado.
+                  </p>
+                </button>
+
+                <button class="glass-card rounded-3xl p-6 text-left animate-float2 hover:bg-white/10 transition"
+                  type="button" onclick="openCardModal('collab')">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🤝</div>
+                      <div>
+                        <div class="text-sm text-white/70">Dimensión</div>
+                        <div class="text-lg font-bold">Colaboración</div>
+                      </div>
+                    </div>
+                    <span class="text-white/60">↗</span>
+                  </div>
+                  <p class="mt-3 text-white/80">
+                    Organización del trabajo en equipo y roles durante los retos.
+                  </p>
+                </button>
+              </div>
+
+              <div class="mt-6 glass-card rounded-3xl p-6">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🧩</div>
+                    <div>
+                      <div class="text-sm text-white/70">Dimensión</div>
+                      <div class="text-lg font-bold">Robótica educativa</div>
+                    </div>
+                  </div>
+                  <button
+                    class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+                    type="button"
+                    onclick="openCardModal('robotics')">
+                    Abrir ↗
+                  </button>
+                </div>
+                <p class="mt-3 text-white/80">
+                  Medio tecnopedagógico para conectar lo abstracto con lo concreto y favorecer aprendizaje activo.
+                </p>
+              </div>
+
+              <p class="mt-4 text-xs text-white/55">
+                ⚙️ Luego reemplazamos los textos por frases EXACTAS de tu TFM (sin inventar).
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+
+    <!-- STEPS 2 a 15: placeholders (espacios reservados) -->
+    <div id="step-2"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 2</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-3"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 3</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-4"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 4</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-5"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 5</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-6"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 6</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-7"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 7</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-8"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 8</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-9"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 9</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-10" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 10</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-11" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 11</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-12" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 12</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-13" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 13</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-14" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 14</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+    <div id="step-15" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 15</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+
+  </div>
+
+  <!-- MODAL pantalla grande (abre al clic en tarjeta) -->
+  <div id="card-modal" aria-hidden="true">
+    <div id="card-modal-backdrop"></div>
+
+    <div class="modal-shell glass-card">
+      <div class="holo-grid" aria-hidden="true"></div>
+
+      <div class="relative z-10 flex items-start justify-between gap-4 px-5 py-4 border-b border-white/10">
+        <div>
+          <div class="text-xs text-white/70">Detalle</div>
+          <h3 id="card-modal-title" class="text-2xl md:text-3xl font-extrabold">—</h3>
+        </div>
+
+        <button id="card-modal-close"
+          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+          type="button"
+          aria-label="Cerrar (ESC)">
+          ✕
+        </button>
+      </div>
+
+      <div class="relative z-10 p-5 md:p-7 grid md:grid-cols-12 gap-6">
+        <div class="md:col-span-7 glass-card rounded-3xl p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <div id="card-modal-icon" class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">✨</div>
+            <span id="card-modal-tag" class="chip px-3 py-1 text-xs text-white/80">—</span>
+          </div>
+          <p id="card-modal-text" class="text-white/90 text-lg leading-relaxed">
+            —
+          </p>
+          <p class="mt-4 text-xs text-white/60">
+            (Aquí irá texto breve y literal del TFM; tú amplías oralmente.)
+          </p>
+        </div>
+
+        <div class="md:col-span-5 glass-card rounded-3xl p-6">
+          <p class="text-sm text-white/70 font-bold mb-3">Puntos clave (para ti)</p>
+          <ul id="card-modal-bullets" class="space-y-2 text-white/85"></ul>
+
+          <div class="mt-6 flex gap-3">
+            <button id="card-modal-prev"
+              class="flex-1 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+              type="button">
+              ← Anterior
+            </button>
+            <button id="card-modal-next"
+              class="flex-1 px-4 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 transition font-bold btn-3d btn-premium"
+              type="button">
+              Siguiente →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative z-10 px-5 pb-5">
+        <p class="text-xs text-white/55 text-center">
+          Tip: Mantén esto corto. La pantalla guía; tu voz argumenta.
+        </p>
+      </div>
+    </div>
+  </div>
 
   <script>
     'use strict';
 
-    /* ========= Estrellas + parallax ========= */
+    /* ======= Estrellas ======= */
     function createStars() {
       const starsContainer = document.getElementById('stars');
       if (!starsContainer) return;
@@ -438,150 +509,185 @@
         starsContainer.appendChild(star);
       }
     }
+
     document.addEventListener('mousemove', (e) => {
       const x = (e.clientX / window.innerWidth - 0.5) * 10;
       const y = (e.clientY / window.innerHeight - 0.5) * 10;
       const stars = document.getElementById('stars');
       if (stars) stars.style.transform = `translate(${x}px, ${y}px)`;
     });
-    document.addEventListener('DOMContentLoaded', createStars);
 
-    /* ========= Contenido por tarjeta (REEMPLAZA con tu TFM literal) ========= */
+    /* ======= Steps ======= */
+    let currentStep = 0;
+    const totalSteps = 15;
+
+    function updateProgress() {
+      const pct = Math.round((currentStep / totalSteps) * 100);
+      const bar = document.getElementById('progress-bar');
+      const text = document.getElementById('progress-text');
+      if (bar) bar.style.width = pct + '%';
+      if (text) text.textContent = pct + '%';
+    }
+
+    function updateHeaderSubtitle(stepNumber){
+      const subtitle = document.getElementById('header-subtitle');
+      if(!subtitle) return;
+      subtitle.textContent = (stepNumber === 0) ? 'Portada' : `Pantalla ${stepNumber}`;
+    }
+
+    function showStep(stepNumber) {
+      for (let i = 0; i <= totalSteps; i++) {
+        const step = document.getElementById(`step-${i}`);
+        if (!step) continue;
+        step.classList.add('hidden');
+        step.classList.remove('flex');
+      }
+      const el = document.getElementById(`step-${stepNumber}`);
+      if (el) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+      currentStep = stepNumber;
+      updateProgress();
+      updateHeaderSubtitle(stepNumber);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextStep() {
+      if (currentStep < totalSteps) showStep(currentStep + 1);
+    }
+    function previousStep() {
+      if (currentStep > 0) showStep(currentStep - 1);
+    }
+    function goToStep(n){
+      const clamped = Math.max(0, Math.min(totalSteps, Number(n)));
+      showStep(clamped);
+    }
+
+    /* ======= Modal pantalla grande ======= */
+    const cardModal = document.getElementById('card-modal');
+    const cardModalBackdrop = document.getElementById('card-modal-backdrop');
+    const cardModalClose = document.getElementById('card-modal-close');
+
+    const mTitle = document.getElementById('card-modal-title');
+    const mIcon = document.getElementById('card-modal-icon');
+    const mTag  = document.getElementById('card-modal-tag');
+    const mText = document.getElementById('card-modal-text');
+    const mBullets = document.getElementById('card-modal-bullets');
+
+    const mPrev = document.getElementById('card-modal-prev');
+    const mNext = document.getElementById('card-modal-next');
+
     const cards = [
       {
-        id: 'core',
-        title: 'Propuesta (Zython)',
-        tag: 'Núcleo',
-        icon: '🚀',
-        text:
-          'Unidad didáctica gamificada con robótica educativa para promover pensamiento matemático y computacional en 4.º de Primaria.',
-        bullets: [
-          '• (TFM) 1 frase sobre por qué Zython es el entorno/mediador.',
-          '• (TFM) 1 frase sobre enfoque gamificado por misiones/retos.',
-          '• (TFM) 1 frase sobre aplicabilidad en aula.'
+        id:'core',
+        title:'Propuesta (Zython)',
+        icon:'🚀',
+        tag:'Núcleo',
+        text:'[Pega aquí 1–2 frases LITERALES de tu TFM sobre el propósito y la propuesta.]',
+        bullets:[
+          '• [TFM] frase breve sobre unidad didáctica gamificada',
+          '• [TFM] frase breve sobre robótica + programación por bloques',
+          '• [TFM] frase breve sobre 4.º de Primaria'
         ]
       },
       {
-        id: 'math',
-        title: 'Pensamiento matemático',
-        tag: 'Dimensión',
-        icon: '🧠',
-        text:
-          'Dificultades y necesidad de experiencias concretas y contextualizadas para fortalecer el razonamiento y la resolución de problemas.',
-        bullets: [
-          '• (TFM) 1 evidencia/idea clave de la justificación.',
-          '• (TFM) 1 frase sobre “lo abstracto → concreto”.'
+        id:'math',
+        title:'Pensamiento matemático',
+        icon:'🧠',
+        tag:'Dimensión',
+        text:'[Pega aquí 1–2 frases literales del TFM sobre dificultades / necesidad / enfoque.]',
+        bullets:[
+          '• [TFM] idea clave (razonamiento / resolución de problemas)',
+          '• [TFM] idea clave (aprendizaje significativo / contextualización)'
         ]
       },
       {
-        id: 'ct',
-        title: 'Pensamiento computacional',
-        tag: 'Dimensión',
-        icon: '💻',
-        text:
-          'Componentes como secuenciación, condicionales, bucles y depuración pueden integrarse con contenidos matemáticos en Primaria.',
-        bullets: [
-          '• (TFM) 1 frase sobre viabilidad en 4.º.',
-          '• (TFM) 1 frase sobre articulación con matemáticas.'
+        id:'ct',
+        title:'Pensamiento computacional',
+        icon:'💻',
+        tag:'Dimensión',
+        text:'[Pega aquí 1–2 frases literales del TFM sobre PC en primaria y su integración.]',
+        bullets:[
+          '• [TFM] secuenciación / condicionales / bucles / depuración',
+          '• [TFM] articulación con contenidos matemáticos'
         ]
       },
       {
-        id: 'motivation',
-        title: 'Motivación',
-        tag: 'Dimensión',
-        icon: '🔥',
-        text:
-          'La gamificación y los retos contextualizados favorecen el compromiso, el aprendizaje activo y el significado de las tareas.',
-        bullets: [
-          '• (TFM) 1 idea sobre motivación en metodologías tradicionales.',
-          '• (TFM) 1 idea sobre “retos”/“misiones”.'
+        id:'motivation',
+        title:'Motivación',
+        icon:'🔥',
+        tag:'Dimensión',
+        text:'[Pega aquí 1–2 frases literales del TFM sobre motivación y gamificación.]',
+        bullets:[
+          '• [TFM] impacto en motivación/compromiso',
+          '• [TFM] sentido de retos/misiones'
         ]
       },
       {
-        id: 'collab',
-        title: 'Colaboración',
-        tag: 'Dimensión',
-        icon: '🤝',
-        text:
-          'La propuesta organiza experiencias cooperativas para fortalecer el trabajo en equipo durante el proceso de exploración.',
-        bullets: [
-          '• (TFM) 1 frase sobre roles/equipo.',
-          '• (TFM) 1 frase sobre colaboración como competencia.'
+        id:'collab',
+        title:'Colaboración',
+        icon:'🤝',
+        tag:'Dimensión',
+        text:'[Pega aquí 1–2 frases literales del TFM sobre trabajo colaborativo.]',
+        bullets:[
+          '• [TFM] roles / cooperación',
+          '• [TFM] competencia colaborativa'
         ]
       },
       {
-        id: 'robotics',
-        title: 'Robótica educativa',
-        tag: 'Dimensión',
-        icon: '🧩',
-        text:
-          'La robótica educativa actúa como medio tecnopedagógico que facilita la comprensión y el razonamiento al materializar decisiones en acciones.',
-        bullets: [
-          '• (TFM) 1 frase sobre programación por bloques.',
-          '• (TFM) 1 frase sobre aprendizaje activo/observación.'
+        id:'robotics',
+        title:'Robótica educativa',
+        icon:'🧩',
+        tag:'Dimensión',
+        text:'[Pega aquí 1–2 frases literales del TFM sobre robótica como puente abstracto–concreto.]',
+        bullets:[
+          '• [TFM] “lo abstracto → concreto”',
+          '• [TFM] aprendizaje activo / observación'
         ]
       }
     ];
 
-    /* ========= Drawer ========= */
-    const drawer = document.getElementById('drawer');
-    const backdrop = document.getElementById('drawerBackdrop');
+    let currentCardIdx = 0;
 
-    const drawerTitle = document.getElementById('drawerTitle');
-    const drawerIcon = document.getElementById('drawerIcon');
-    const drawerTag  = document.getElementById('drawerTag');
-    const drawerText = document.getElementById('drawerText');
-    const drawerBullets = document.getElementById('drawerBullets');
-
-    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-    const prevCardBtn = document.getElementById('prevCardBtn');
-    const nextCardBtn = document.getElementById('nextCardBtn');
-
-    let currentIdx = 0;
-
-    function renderDrawer(idx){
+    function renderModal(idx){
       const c = cards[idx];
       if(!c) return;
 
-      drawerTitle.textContent = c.title;
-      drawerIcon.textContent = c.icon;
-      drawerTag.textContent  = c.tag;
-      drawerText.textContent = c.text;
+      mTitle.textContent = c.title;
+      mTag.textContent = c.tag;
+      mIcon.textContent = c.icon;
+      mText.textContent = c.text;
 
-      drawerBullets.innerHTML = '';
+      mBullets.innerHTML = '';
       (c.bullets || []).forEach(b => {
         const li = document.createElement('li');
         li.className = 'flex gap-2 items-start';
         li.innerHTML = `<span class="mt-[2px] text-white/70">▸</span><span>${escapeHtml(b)}</span>`;
-        drawerBullets.appendChild(li);
+        mBullets.appendChild(li);
       });
 
-      prevCardBtn.disabled = (idx === 0);
-      prevCardBtn.classList.toggle('opacity-50', idx === 0);
+      mPrev.disabled = (idx === 0);
+      mPrev.classList.toggle('opacity-50', idx === 0);
 
-      nextCardBtn.disabled = (idx === cards.length - 1);
-      nextCardBtn.classList.toggle('opacity-50', idx === cards.length - 1);
+      mNext.disabled = (idx === cards.length - 1);
+      mNext.classList.toggle('opacity-50', idx === cards.length - 1);
     }
 
-    function openDrawer(idx){
-      currentIdx = idx;
-      renderDrawer(currentIdx);
+    function openCardModal(cardId){
+      const idx = cards.findIndex(x => x.id === cardId);
+      currentCardIdx = (idx >= 0) ? idx : 0;
 
-      drawer.classList.add('open');
-      backdrop.classList.add('show');
+      renderModal(currentCardIdx);
 
-      // focus accesible
-      setTimeout(() => closeDrawerBtn.focus(), 50);
+      cardModal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => cardModalClose.focus(), 60);
     }
 
-    function closeDrawer(){
-      drawer.classList.remove('open');
-      backdrop.classList.remove('show');
-    }
-
-    function openDrawerById(id){
-      const idx = cards.findIndex(c => c.id === id);
-      openDrawer(idx >= 0 ? idx : 0);
+    function closeCardModal(){
+      cardModal.classList.remove('show');
+      document.body.style.overflow = '';
     }
 
     function escapeHtml(str){
@@ -593,21 +699,31 @@
         .replaceAll("'","&#039;");
     }
 
-    /* ========= Controles ========= */
-    document.getElementById('openFirstBtn').addEventListener('click', () => openDrawer(0));
-    closeDrawerBtn.addEventListener('click', closeDrawer);
-    backdrop.addEventListener('click', closeDrawer);
-
-    prevCardBtn.addEventListener('click', () => {
-      if(currentIdx > 0) openDrawer(currentIdx - 1);
-    });
-    nextCardBtn.addEventListener('click', () => {
-      if(currentIdx < cards.length - 1) openDrawer(currentIdx + 1);
-    });
-
-    // ESC cierra
+    cardModalClose.addEventListener('click', closeCardModal);
+    cardModalBackdrop.addEventListener('click', closeCardModal);
     document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+      if(e.key === 'Escape' && cardModal.classList.contains('show')) closeCardModal();
+    });
+
+    mPrev.addEventListener('click', () => {
+      if(currentCardIdx > 0){
+        currentCardIdx--;
+        renderModal(currentCardIdx);
+      }
+    });
+    mNext.addEventListener('click', () => {
+      if(currentCardIdx < cards.length - 1){
+        currentCardIdx++;
+        renderModal(currentCardIdx);
+      }
+    });
+
+    /* ======= Init ======= */
+    document.addEventListener('DOMContentLoaded', () => {
+      createStars();
+      showStep(0);
+      updateProgress();
+      updateHeaderSubtitle(0);
     });
   </script>
 </body>
