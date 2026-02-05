@@ -1,1504 +1,1771 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CreateStars - Defensa TFM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #8B5CF6;
-            --primary-light: #A78BFA;
-            --secondary: #06B6D4;
-            --dark: #0F0A1F;
-            --darker: #070412;
-            --text: #E2E8F0;
-            --text-muted: #94A3B8;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1a0a2e 100%);
-            color: var(--text);
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        /* Scanlines Effect */
-        .scanlines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.03) 0px,
-                rgba(0, 0, 0, 0.03) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            animation: scanlineMove 8s linear infinite;
-        }
-
-        @keyframes scanlineMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 100px; }
-        }
-
-        /* Floating Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(139, 92, 246, 0.6);
-            border-radius: 50%;
-            animation: floatUp 15s linear infinite;
-        }
-
-        @keyframes floatUp {
-            0% {
-                transform: translateY(100vh) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100vh) scale(1);
-                opacity: 0;
-            }
-        }
-
-        /* Stars Background */
-        .stars-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle var(--duration) ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: var(--opacity); transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        /* Slide Container */
-        .slide-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            z-index: 10;
-        }
-
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
-            filter: blur(10px);
-        }
-
-        .slide.active {
-            display: flex;
-            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .slide.exit-next {
-            animation: slideOutNext 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .slide.exit-prev {
-            animation: slideOutPrev 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideIn {
-            0% {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-                filter: blur(10px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-                filter: blur(0);
-            }
-        }
-
-        @keyframes slideOutNext {
-            0% {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-                filter: blur(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(-100px) scale(0.9);
-                filter: blur(10px);
-            }
-        }
-
-        @keyframes slideOutPrev {
-            0% {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-                filter: blur(0);
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(100px) scale(0.9);
-                filter: blur(10px);
-            }
-        }
-
-        /* Transition Grid Overlay */
-        .transition-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999;
-            pointer-events: none;
-            opacity: 0;
-            background: 
-                linear-gradient(90deg, transparent 49%, rgba(139, 92, 246, 0.1) 50%, transparent 51%),
-                linear-gradient(0deg, transparent 49%, rgba(139, 92, 246, 0.1) 50%, transparent 51%);
-            background-size: 50px 50px;
-        }
-
-        .transition-overlay.active-next {
-            animation: gridSlideNext 0.6s ease-out;
-        }
-
-        .transition-overlay.active-prev {
-            animation: gridSlidePrev 0.6s ease-out;
-        }
-
-        @keyframes gridSlideNext {
-            0% {
-                opacity: 0;
-                transform: translateX(-100%);
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-        }
-
-        @keyframes gridSlidePrev {
-            0% {
-                opacity: 0;
-                transform: translateX(100%);
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-                transform: translateX(-100%);
-            }
-        }
-
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 3rem;
-            z-index: 100;
-            background: linear-gradient(180deg, rgba(7, 4, 18, 0.9) 0%, transparent 100%);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            animation: hologramPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes hologramPulse {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 60px rgba(6, 182, 212, 0.4);
-            }
-        }
-
-        .sound-btn {
-            background: rgba(139, 92, 246, 0.2);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: var(--text);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .sound-btn:hover {
-            background: rgba(139, 92, 246, 0.3);
-            border-color: var(--primary);
-        }
-
-        .sound-btn.active {
-            background: rgba(139, 92, 246, 0.4);
-            border-color: var(--primary);
-        }
-
-        /* Navigation */
-        .nav-controls {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 100;
-            background: rgba(15, 10, 31, 0.8);
-            padding: 0.75rem 1.5rem;
-            border-radius: 100px;
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(139, 92, 246, 0.2);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            color: var(--text);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .nav-btn:hover::before {
-            left: 100%;
-        }
-
-        .nav-btn:hover {
-            background: var(--primary);
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
-        }
-
-        .nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        .nav-btn:disabled:hover {
-            background: rgba(139, 92, 246, 0.2);
-            transform: none;
-            box-shadow: none;
-        }
-
-        .slide-counter {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .progress-dots {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .progress-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(139, 92, 246, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .progress-dot.active {
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
-            transform: scale(1.3);
-        }
-
-        .progress-dot:hover:not(.active) {
-            background: rgba(139, 92, 246, 0.5);
-        }
-
-        /* Slide Content Styles */
-        .slide-content {
-            max-width: 1200px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .title-main {
-            font-size: 4.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text) 0%, var(--primary-light) 50%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1.5rem;
-            position: relative;
-            animation: neonGlow 3s ease-in-out infinite;
-        }
-
-        .title-main:hover {
-            animation: glitchText 0.3s ease-in-out;
-        }
-
-        @keyframes neonGlow {
-            0%, 100% {
-                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
-            }
-            50% {
-                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.8)) drop-shadow(0 0 60px rgba(6, 182, 212, 0.4));
-            }
-        }
-
-        @keyframes glitchText {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-
-        .title {
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--text), var(--primary-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1rem;
-        }
-
-        .subtitle {
-            font-size: 1.5rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-        }
-
-        .description {
-            font-size: 1.125rem;
-            color: var(--text-muted);
-            line-height: 1.8;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .card {
-            background: rgba(15, 10, 31, 0.6);
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: left;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .card:hover::before {
-            left: 100%;
-        }
-
-        .card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--primary);
-            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
-        }
-
-        .card-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            animation: hologramPulse 3s ease-in-out infinite;
-        }
-
-        .card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-            color: var(--text);
-        }
-
-        .card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* List Styles */
-        .feature-list {
-            list-style: none;
-            text-align: left;
-            max-width: 600px;
-            margin: 2rem auto;
-        }
-
-        .feature-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .feature-list li:hover {
-            padding-left: 1rem;
-            background: rgba(139, 92, 246, 0.05);
-            border-radius: 8px;
-        }
-
-        .feature-list li::before {
-            content: '◆';
-            color: var(--primary);
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 2rem;
-            background: rgba(139, 92, 246, 0.1);
-            border-radius: 16px;
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .stat-item:hover {
-            transform: scale(1.05);
-            border-color: var(--primary);
-            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
-        }
-
-        .stat-number {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary-light);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        /* Author Info */
-        .author-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding: 2rem;
-            background: rgba(139, 92, 246, 0.1);
-            border-radius: 16px;
-            border: 1px solid rgba(139, 92, 246, 0.2);
-        }
-
-        .author-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            animation: hologramPulse 2s ease-in-out infinite;
-        }
-
-        /* Keyboard hint */
-        .keyboard-hint {
-            position: fixed;
-            bottom: 6rem;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            opacity: 0.5;
-            z-index: 100;
-        }
-
-        kbd {
-            background: rgba(139, 92, 246, 0.2);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            border-radius: 4px;
-            padding: 0.25rem 0.5rem;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.7rem;
-        }
-
-        /* Timeline */
-        .timeline {
-            position: relative;
-            max-width: 700px;
-            margin: 2rem auto;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(180deg, var(--primary), var(--secondary));
-        }
-
-        .timeline-item {
-            padding-left: 2rem;
-            padding-bottom: 2rem;
-            position: relative;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -5px;
-            top: 0;
-            width: 12px;
-            height: 12px;
-            background: var(--primary);
-            border-radius: 50%;
-            box-shadow: 0 0 20px var(--primary);
-        }
-
-        .timeline-item h4 {
-            color: var(--primary-light);
-            margin-bottom: 0.5rem;
-        }
-
-        .timeline-item p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        /* CTA Button */
-        .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1.125rem;
-            text-decoration: none;
-            margin-top: 2rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .cta-btn:hover::before {
-            left: 100%;
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
-        }
-
-        /* Two columns */
-        .two-cols {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            text-align: left;
-            align-items: center;
-        }
-
-        /* Tech stack */
-        .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        .tech-badge {
-            background: rgba(139, 92, 246, 0.15);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            padding: 0.75rem 1.5rem;
-            border-radius: 100px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .tech-badge:hover {
-            background: rgba(139, 92, 246, 0.3);
-            transform: scale(1.05);
-            border-color: var(--primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .title-main {
-                font-size: 2.5rem;
-            }
-            .title {
-                font-size: 2rem;
-            }
-            .two-cols {
-                grid-template-columns: 1fr;
-            }
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .header {
-                padding: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Defensa TFM - Zython (15 diapositivas)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Fredoka', sans-serif; }
+
+    :root{
+      --card: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.18);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 24px;
+      --accent: #60a5fa;
+      --accent2:#a78bfa;
+    }
+
+    :focus-visible{
+      outline: 3px solid rgba(96,165,250,.8);
+      outline-offset: 3px;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    body {
+      background: linear-gradient(-45deg, #1a0b2e, #16213e, #0f3460, #533483);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      padding-top: 92px;
+      overflow-x: hidden;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-18px); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(147, 51, 234, 0.4); }
+      50% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.9), 0 0 90px rgba(147, 51, 234, 0.6); }
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @keyframes titleGlow {
+      0%, 100% {
+        text-shadow: 0 0 20px rgba(59, 130, 246, 0.8),
+                     0 0 40px rgba(147, 51, 234, 0.6),
+                     0 0 60px rgba(236, 72, 153, 0.4);
+      }
+      50% {
+        text-shadow: 0 0 30px rgba(59, 130, 246, 1),
+                     0 0 60px rgba(147, 51, 234, 0.8),
+                     0 0 90px rgba(236, 72, 153, 0.6);
+      }
+    }
+
+    .title-hero { animation: titleGlow 3s ease-in-out infinite; }
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    .animate-fade-in-scale { animation: fadeInScale 0.8s ease-out; }
+    .animate-fade-in { animation: fadeIn 1.2s ease-out; }
+
+    .stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      transition: transform .2s ease;
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 3s infinite;
+      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .glass-card {
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+    }
+
+    .btn-3d {
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 30px rgba(0, 0, 0, 0.3); }
+    .btn-3d:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2); }
+
+    .btn-premium { position: relative; overflow: hidden; }
+    .btn-premium::after{
+      content:"";
+      position:absolute;
+      inset:-120%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+      transform: rotate(25deg) translateX(-40%);
+      transition: transform .6s ease;
+      pointer-events: none;
+    }
+    .btn-premium:hover::after{ transform: rotate(25deg) translateX(40%); }
+
+    .text-glow { text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .55rem .9rem;
+      border-radius: 9999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+      transition: transform .25s ease, background .25s ease;
+    }
+    .pill:hover{ transform: translateY(-2px); background: rgba(255,255,255,.14); }
+
+    .step-counter {
+      font-weight: 800;
+      letter-spacing: .5px;
+      color: rgba(255,255,255,.78);
+    }
+
+    .float-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(18px);
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .float-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(circle at 30% 20%, rgba(96,165,250,.35), transparent 55%),
+                  radial-gradient(circle at 80% 70%, rgba(167,139,250,.28), transparent 55%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .float-card:hover{
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 22px 80px rgba(0,0,0,.55);
+    }
+    .float-card .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      font-weight:700;
+      padding:.35rem .7rem;
+      border-radius:9999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .float-orb{
+      position:absolute;
+      width: 140px; height: 140px;
+      border-radius: 9999px;
+      opacity:.9;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      animation: float 5s ease-in-out infinite;
+    }
+    .float-orb.one{ right:-40px; top:-40px; background: radial-gradient(circle, rgba(96,165,250,.45), transparent 65%); }
+    .float-orb.two{ left:-45px; bottom:-45px; background: radial-gradient(circle, rgba(167,139,250,.45), transparent 65%); animation-duration: 6.2s; }
+
+    #product-modal{
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    #product-modal.show{ display:flex; }
+    #product-modal-backdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(10px);
+    }
+    .product-modal-panel{
+      position: relative;
+      z-index: 2;
+      width: min(1200px, 96vw);
+      height: min(720px, 86vh);
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 25px 80px rgba(0,0,0,.65);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(16px);
+    }
+    .product-modal-topbar{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .75rem .9rem;
+      background: rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .product-modal-title{
+      font-weight: 800;
+      color: rgba(255,255,255,.92);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .product-modal-actions{
+      display:flex;
+      align-items:center;
+      gap: .5rem;
+    }
+    .product-modal-btn{
+      padding: .55rem .8rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      font-weight: 800;
+      transition: .2s ease;
+    }
+    .product-modal-btn:hover{ background: rgba(255,255,255,.18); }
+    .product-iframe{
+      width: 100%;
+      height: calc(100% - 54px);
+      border: 0;
+      background: rgba(0,0,0,.2);
+    }
+    @media (max-width: 768px){
+      .product-modal-panel{ height: min(720px, 90vh); }
+    }
+
+    /* ========== EFECTOS FUTURISTAS NUEVOS ========== */
+
+    /* Scanlines overlay */
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.008) 2px,
+        rgba(255,255,255,0.008) 4px
+      );
+    }
+
+    /* Particulas flotantes */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0% { opacity: 0; transform: translateY(100vh) translateX(0px); }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-20vh) translateX(40px); }
+    }
+
+    /* Transiciones entre slides */
+    .slide-transition-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 45;
+      opacity: 0;
+    }
+    .slide-transition-overlay.active {
+      animation: slideTransition 0.6s ease-out;
+    }
+    @keyframes slideTransition {
+      0% { opacity: 1; background: radial-gradient(ellipse at center, rgba(96,165,250,0.15), transparent 70%); }
+      100% { opacity: 0; background: radial-gradient(ellipse at center, rgba(96,165,250,0), transparent 70%); }
+    }
+
+    /* Efecto entrada para el contenido de cada slide */
+    .slide-enter {
+      animation: slideEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes slideEnter {
+      0% { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(6px); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+
+    /* Efecto warp lateral */
+    .slide-enter-right {
+      animation: slideEnterRight 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes slideEnterRight {
+      0% { opacity: 0; transform: translateX(80px) scale(0.97); filter: blur(4px); }
+      100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+    }
+    .slide-enter-left {
+      animation: slideEnterLeft 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes slideEnterLeft {
+      0% { opacity: 0; transform: translateX(-80px) scale(0.97); filter: blur(4px); }
+      100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0); }
+    }
+
+    /* Grid overlay en transicion */
+    .grid-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 44;
+      opacity: 0;
+      background:
+        linear-gradient(90deg, rgba(96,165,250,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(96,165,250,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .grid-overlay.flash {
+      animation: gridFlash 0.8s ease-out;
+    }
+    @keyframes gridFlash {
+      0% { opacity: 1; background-size: 80px 80px; }
+      100% { opacity: 0; background-size: 60px 60px; }
+    }
+
+    /* Shooting stars */
+    .shooting-star {
+      position: fixed;
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      animation: shootingStar 1.5s ease-out;
+    }
+    @keyframes shootingStar {
+      0% { opacity: 0; transform: translateX(0) translateY(0) rotate(-35deg); }
+      10% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(300px) translateY(200px) rotate(-35deg); }
+    }
+
+    /* Nebula glow */
+    .nebula {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.08;
+      filter: blur(100px);
+      animation: nebulaDrift 20s ease-in-out infinite alternate;
+    }
+    @keyframes nebulaDrift {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(50px, -30px) scale(1.1); }
+      100% { transform: translate(-30px, 40px) scale(0.95); }
+    }
+
+    /* Audio button */
+    .audio-btn {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .audio-btn:hover {
+      background: rgba(255,255,255,.16);
+      border-color: rgba(255,255,255,.25);
+    }
+    .audio-btn .bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 14px;
+    }
+    .audio-btn .bar {
+      width: 3px;
+      background: rgba(255,255,255,.7);
+      border-radius: 1px;
+      transition: height 0.3s ease;
+    }
+    .audio-btn.playing .bar {
+      animation: audioBar 0.8s ease-in-out infinite alternate;
+    }
+    .audio-btn.playing .bar:nth-child(1) { animation-delay: 0s; }
+    .audio-btn.playing .bar:nth-child(2) { animation-delay: 0.15s; }
+    .audio-btn.playing .bar:nth-child(3) { animation-delay: 0.3s; }
+    .audio-btn.playing .bar:nth-child(4) { animation-delay: 0.1s; }
+    .audio-btn:not(.playing) .bar { height: 4px !important; opacity: 0.4; }
+    @keyframes audioBar {
+      0% { height: 4px; }
+      100% { height: 14px; }
+    }
+
+    /* Slide number indicator con estilo futurista */
+    .slide-indicator {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 48;
+      display: flex;
+      gap: 6px;
+      padding: 8px 14px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .slide-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .slide-dot.active {
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(96,165,250,0.6);
+      transform: scale(1.3);
+    }
+    .slide-dot:hover:not(.active) {
+      background: rgba(255,255,255,.4);
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
 </head>
-<body>
-    <!-- Scanlines -->
-    <div class="scanlines"></div>
 
-    <!-- Floating Particles -->
-    <div class="particles" id="particles"></div>
+<body class="min-h-screen text-white overflow-x-hidden">
+  <div class="stars" id="stars"></div>
+  <div class="scanlines"></div>
+  <div id="particles-container"></div>
+  <div class="slide-transition-overlay" id="slide-transition"></div>
+  <div class="grid-overlay" id="grid-overlay"></div>
 
-    <!-- Stars Background -->
-    <div class="stars-container" id="stars"></div>
+  <!-- Nebulas -->
+  <div class="nebula" style="top: 10%; left: -5%; background: radial-gradient(circle, rgba(96,165,250,0.4), transparent 60%);"></div>
+  <div class="nebula" style="bottom: 5%; right: -8%; background: radial-gradient(circle, rgba(167,139,250,0.35), transparent 60%); animation-delay: -10s;"></div>
 
-    <!-- Transition Overlay -->
-    <div class="transition-overlay" id="transitionOverlay"></div>
-
-    <!-- Header -->
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">✦</div>
-            <span>CreateStars</span>
+  <!-- Header fijo tipo app -->
+  <header class="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+    <div class="max-w-6xl mx-auto glass-card rounded-2xl px-5 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl">&#x1FA90;</div>
+        <div>
+          <div class="font-bold leading-none">Defensa - Zython</div>
+          <div id="header-subtitle" class="text-xs text-white/70">Diapositiva 1 - Portada</div>
         </div>
-        <button class="sound-btn" id="soundBtn" onclick="toggleSound()">
-            <span id="soundIcon">🔇</span>
-            <span id="soundText">Activar Sonido</span>
+      </div>
+
+      <div class="hidden md:flex items-center gap-3 w-[360px]">
+        <div class="text-xs text-white/70">Progreso</div>
+        <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+          <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-[0%] transition-all duration-500 ease-out"></div>
+        </div>
+        <div id="progress-text" class="text-xs text-white/70 w-12 text-right">0%</div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="audio-toggle" class="audio-btn" title="Sonido ambiental">
+          <div class="bars">
+            <div class="bar" style="height:6px"></div>
+            <div class="bar" style="height:10px"></div>
+            <div class="bar" style="height:4px"></div>
+            <div class="bar" style="height:8px"></div>
+          </div>
         </button>
-    </header>
-
-    <!-- Slides Container -->
-    <div class="slide-container">
-        
-        <!-- Slide 1: Portada -->
-        <div class="slide active" data-slide="1">
-            <div class="slide-content">
-                <h1 class="title-main">CreateStars</h1>
-                <p class="subtitle">Plataforma de Financiación Colectiva para Emprendimientos Espaciales</p>
-                <p class="description">
-                    Trabajo de Fin de Máster<br>
-                    Máster en Ingeniería del Software y Sistemas Informáticos
-                </p>
-                <div class="author-info">
-                    <div class="author-avatar">👨‍🚀</div>
-                    <div>
-                        <strong>Autor:</strong> Tu Nombre<br>
-                        <strong>Director:</strong> Nombre del Director<br>
-                        <strong>Fecha:</strong> 2024
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 2: Índice -->
-        <div class="slide" data-slide="2">
-            <div class="slide-content">
-                <h2 class="title">Contenido</h2>
-                <div class="cards-grid">
-                    <div class="card">
-                        <div class="card-icon">🎯</div>
-                        <h3>1. Introducción</h3>
-                        <p>Contexto y motivación del proyecto</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🔍</div>
-                        <h3>2. Objetivos</h3>
-                        <p>Metas y alcance del proyecto</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🛠️</div>
-                        <h3>3. Metodología</h3>
-                        <p>Enfoque y tecnologías utilizadas</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">💡</div>
-                        <h3>4. Desarrollo</h3>
-                        <p>Implementación de la solución</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📊</div>
-                        <h3>5. Resultados</h3>
-                        <p>Análisis y métricas obtenidas</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🚀</div>
-                        <h3>6. Conclusiones</h3>
-                        <p>Reflexiones y trabajo futuro</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 3: Introducción -->
-        <div class="slide" data-slide="3">
-            <div class="slide-content">
-                <h2 class="title">Introducción</h2>
-                <p class="subtitle">El auge de la industria espacial comercial</p>
-                <div class="two-cols" style="margin-top: 2rem;">
-                    <div>
-                        <p class="description" style="text-align: left;">
-                            La industria espacial está experimentando una transformación sin precedentes. 
-                            Con la entrada de empresas privadas y la reducción de costos de lanzamiento, 
-                            surgen nuevas oportunidades para emprendedores y pequeñas empresas.
-                        </p>
-                        <ul class="feature-list">
-                            <li>Mercado espacial valorado en $469 mil millones (2023)</li>
-                            <li>Crecimiento anual esperado del 7.1%</li>
-                            <li>Más de 10,000 startups espaciales activas</li>
-                        </ul>
-                    </div>
-                    <div class="stats-grid" style="grid-template-columns: 1fr;">
-                        <div class="stat-item">
-                            <div class="stat-number">$469B</div>
-                            <div class="stat-label">Mercado Global 2023</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number">7.1%</div>
-                            <div class="stat-label">Crecimiento Anual</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 4: Problema -->
-        <div class="slide" data-slide="4">
-            <div class="slide-content">
-                <h2 class="title">El Problema</h2>
-                <p class="subtitle">Barreras para emprendedores espaciales</p>
-                <div class="cards-grid" style="margin-top: 2rem;">
-                    <div class="card">
-                        <div class="card-icon">💰</div>
-                        <h3>Altos costos de entrada</h3>
-                        <p>Los proyectos espaciales requieren inversiones significativas que excluyen a pequeños emprendedores</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🏦</div>
-                        <h3>Financiación tradicional limitada</h3>
-                        <p>Bancos y fondos tradicionales no comprenden el sector espacial y sus riesgos únicos</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🌐</div>
-                        <h3>Falta de plataformas especializadas</h3>
-                        <p>No existen plataformas de crowdfunding diseñadas específicamente para proyectos espaciales</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 5: Solución -->
-        <div class="slide" data-slide="5">
-            <div class="slide-content">
-                <h2 class="title">La Solución: CreateStars</h2>
-                <p class="subtitle">Democratizando el acceso al espacio</p>
-                <p class="description">
-                    CreateStars es una plataforma de financiación colectiva especializada en proyectos espaciales, 
-                    que conecta emprendedores con inversores apasionados por la exploración espacial.
-                </p>
-                <div class="cards-grid" style="margin-top: 2rem;">
-                    <div class="card">
-                        <div class="card-icon">🎯</div>
-                        <h3>Especialización</h3>
-                        <p>Enfocada exclusivamente en proyectos espaciales y aeroespaciales</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🤝</div>
-                        <h3>Comunidad</h3>
-                        <p>Conecta entusiastas, inversores y emprendedores del espacio</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🔒</div>
-                        <h3>Seguridad</h3>
-                        <p>Sistema de verificación y protección de inversiones</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📈</div>
-                        <h3>Transparencia</h3>
-                        <p>Seguimiento en tiempo real del progreso de los proyectos</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 6: Objetivos -->
-        <div class="slide" data-slide="6">
-            <div class="slide-content">
-                <h2 class="title">Objetivos del Proyecto</h2>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <h4>Objetivo General</h4>
-                        <p>Desarrollar una plataforma web completa de crowdfunding especializada en el sector espacial</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h4>Objetivo Específico 1</h4>
-                        <p>Diseñar una arquitectura escalable y segura para gestionar transacciones financieras</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h4>Objetivo Específico 2</h4>
-                        <p>Implementar un sistema de verificación de proyectos y emprendedores</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h4>Objetivo Específico 3</h4>
-                        <p>Crear una experiencia de usuario intuitiva y atractiva</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h4>Objetivo Específico 4</h4>
-                        <p>Integrar herramientas de seguimiento y comunicación entre partes</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 7: Tecnologías -->
-        <div class="slide" data-slide="7">
-            <div class="slide-content">
-                <h2 class="title">Stack Tecnológico</h2>
-                <p class="subtitle">Tecnologías modernas para una plataforma robusta</p>
-                <div class="tech-stack">
-                    <span class="tech-badge">React</span>
-                    <span class="tech-badge">Next.js</span>
-                    <span class="tech-badge">TypeScript</span>
-                    <span class="tech-badge">Node.js</span>
-                    <span class="tech-badge">PostgreSQL</span>
-                    <span class="tech-badge">Prisma</span>
-                    <span class="tech-badge">Tailwind CSS</span>
-                    <span class="tech-badge">Stripe</span>
-                    <span class="tech-badge">AWS</span>
-                    <span class="tech-badge">Docker</span>
-                </div>
-                <div class="cards-grid" style="margin-top: 3rem;">
-                    <div class="card">
-                        <div class="card-icon">⚛️</div>
-                        <h3>Frontend</h3>
-                        <p>React + Next.js para SSR y optimización SEO</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">⚙️</div>
-                        <h3>Backend</h3>
-                        <p>API REST con Node.js y validación TypeScript</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🗄️</div>
-                        <h3>Base de Datos</h3>
-                        <p>PostgreSQL con Prisma ORM</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 8: Arquitectura -->
-        <div class="slide" data-slide="8">
-            <div class="slide-content">
-                <h2 class="title">Arquitectura del Sistema</h2>
-                <p class="subtitle">Diseño modular y escalable</p>
-                <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 2rem;">
-                    <div class="card">
-                        <div class="card-icon">👤</div>
-                        <h3>Usuarios</h3>
-                        <p>Registro, autenticación, perfiles</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📦</div>
-                        <h3>Proyectos</h3>
-                        <p>Creación, gestión, categorización</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">💳</div>
-                        <h3>Pagos</h3>
-                        <p>Procesamiento seguro con Stripe</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📧</div>
-                        <h3>Notificaciones</h3>
-                        <p>Email, push, actualizaciones</p>
-                    </div>
-                </div>
-                <div class="stat-item" style="margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    <p style="color: var(--text-muted);">
-                        Arquitectura basada en microservicios con comunicación mediante API Gateway, 
-                        permitiendo escalabilidad horizontal y despliegue independiente de componentes.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 9: Demo / Funcionalidades -->
-        <div class="slide" data-slide="9">
-            <div class="slide-content">
-                <h2 class="title">Funcionalidades Principales</h2>
-                <div class="cards-grid" style="grid-template-columns: repeat(2, 1fr);">
-                    <div class="card">
-                        <div class="card-icon">🚀</div>
-                        <h3>Publicación de Proyectos</h3>
-                        <p>Formulario guiado para crear campañas con multimedia, hitos y recompensas personalizables</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🔍</div>
-                        <h3>Exploración y Filtrado</h3>
-                        <p>Búsqueda avanzada por categoría, estado, ubicación y monto de financiación</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">💰</div>
-                        <h3>Sistema de Inversión</h3>
-                        <p>Proceso de pago seguro con múltiples métodos y protección al inversor</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📊</div>
-                        <h3>Dashboard de Seguimiento</h3>
-                        <p>Panel de control con métricas en tiempo real para creadores e inversores</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">💬</div>
-                        <h3>Sistema de Comunicación</h3>
-                        <p>Chat integrado y actualizaciones de proyectos para mantener informada a la comunidad</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">✅</div>
-                        <h3>Verificación de Proyectos</h3>
-                        <p>Proceso de validación para garantizar la legitimidad de los proyectos</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 10: Resultados -->
-        <div class="slide" data-slide="10">
-            <div class="slide-content">
-                <h2 class="title">Resultados Obtenidos</h2>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Objetivos Cumplidos</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">95+</div>
-                        <div class="stat-label">Lighthouse Score</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">&lt;2s</div>
-                        <div class="stat-label">Tiempo de Carga</div>
-                    </div>
-                </div>
-                <div class="cards-grid" style="margin-top: 2rem; grid-template-columns: repeat(2, 1fr);">
-                    <div class="card">
-                        <div class="card-icon">✅</div>
-                        <h3>Plataforma Funcional</h3>
-                        <p>Sistema completo desplegado y operativo con todas las funcionalidades implementadas</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🧪</div>
-                        <h3>Tests Exhaustivos</h3>
-                        <p>Cobertura de tests superior al 80% con pruebas unitarias, integración y E2E</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📱</div>
-                        <h3>Diseño Responsive</h3>
-                        <p>Experiencia optimizada para todos los dispositivos y tamaños de pantalla</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🔐</div>
-                        <h3>Seguridad Robusta</h3>
-                        <p>Implementación de mejores prácticas de seguridad y protección de datos</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 11: Conclusiones -->
-        <div class="slide" data-slide="11">
-            <div class="slide-content">
-                <h2 class="title">Conclusiones</h2>
-                <div class="two-cols">
-                    <div>
-                        <h3 style="color: var(--primary-light); margin-bottom: 1rem;">Logros Principales</h3>
-                        <ul class="feature-list">
-                            <li>Plataforma completa y funcional desarrollada</li>
-                            <li>Arquitectura escalable y mantenible</li>
-                            <li>Experiencia de usuario optimizada</li>
-                            <li>Sistema de pagos seguro implementado</li>
-                            <li>Documentación técnica completa</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 style="color: var(--secondary); margin-bottom: 1rem;">Trabajo Futuro</h3>
-                        <ul class="feature-list">
-                            <li>Implementación de blockchain para trazabilidad</li>
-                            <li>App móvil nativa iOS/Android</li>
-                            <li>Sistema de equity crowdfunding</li>
-                            <li>Integración con APIs de agencias espaciales</li>
-                            <li>Expansión internacional</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 12: Gracias -->
-        <div class="slide" data-slide="12">
-            <div class="slide-content">
-                <h1 class="title-main">¡Gracias!</h1>
-                <p class="subtitle">¿Preguntas?</p>
-                <div class="author-info" style="margin-top: 3rem;">
-                    <div class="author-avatar">🚀</div>
-                    <div style="text-align: center;">
-                        <p style="font-size: 1.25rem; margin-bottom: 0.5rem;"><strong>Tu Nombre</strong></p>
-                        <p style="color: var(--text-muted);">email@universidad.edu</p>
-                        <p style="color: var(--text-muted);">linkedin.com/in/tunombre</p>
-                    </div>
-                </div>
-                <a href="#" class="cta-btn" style="margin-top: 2rem;">
-                    🌐 Ver Demo en Vivo
-                </a>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Navigation -->
-    <div class="keyboard-hint">
-        Usa <kbd>←</kbd> <kbd>→</kbd> o <kbd>Space</kbd> para navegar
-    </div>
-
-    <div class="nav-controls">
-        <button class="nav-btn" id="prevBtn" onclick="prevSlide()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 18l-6-6 6-6"/>
-            </svg>
+        <button onclick="prevStep()"
+          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+          title="Anterior">
+          &#8592;
         </button>
-        <div class="progress-dots" id="progressDots"></div>
-        <span class="slide-counter" id="slideCounter">1 / 12</span>
-        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 18l6-6-6-6"/>
-            </svg>
+        <button onclick="nextStep()"
+          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+          title="Siguiente">
+          &#8594;
         </button>
+      </div>
     </div>
+  </header>
 
-    <script>
-        // Configuration
-        const TOTAL_SLIDES = 12;
-        let currentSlide = 1;
-        let isTransitioning = false;
-        let audioContext = null;
-        let ambientOscillators = [];
-        let ambientGain = null;
-        let isSoundEnabled = false;
+  <!-- Slide dots indicator -->
+  <div class="slide-indicator" id="slide-indicator"></div>
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            createStars();
-            createParticles();
-            createProgressDots();
-            updateNavigation();
+  <div class="relative z-10 min-h-screen flex flex-col">
+
+    <!-- =========================
+         STEP 1 / 15 - PORTADA
+    ========================== -->
+    <section id="step-1" class="step-container min-h-screen flex items-center justify-center p-6">
+      <div class="max-w-6xl w-full text-center animate-fade-in-scale">
+        <div class="text-8xl mb-8 animate-float">&#x1F680;</div>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-5 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent title-hero leading-tight">
+          Exploradores del Espacio<br/>Misiones con Robots
+        </h1>
+
+        <div class="glass-card p-6 md:p-8 rounded-3xl max-w-4xl mx-auto">
+          <div class="text-white/90 text-lg md:text-xl leading-relaxed">
+            <div class="font-bold text-white/95">Trabajo Fin de Master</div>
+            <div class="mt-2 text-white/80">Master Universitario en Tecnologia Educativa y Competencias Digitales</div>
+
+            <div class="mt-6 grid md:grid-cols-2 gap-4 text-left">
+              <div class="glass-card rounded-2xl p-5">
+                <div class="text-white/70 text-sm">Autora</div>
+                <div class="font-bold text-xl">Maileen Julissa Hoyos Castellanos</div>
+                <div class="text-white/70 text-sm mt-2">Especialidad</div>
+                <div class="font-bold">Proyecto de Innovacion</div>
+              </div>
+              <div class="glass-card rounded-2xl p-5">
+                <div class="text-white/70 text-sm">Direccion</div>
+                <div class="font-bold text-xl">Albert Valls Pou</div>
+                <div class="text-white/70 text-sm mt-2">Fecha</div>
+                <div class="font-bold">05/02/2026</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F9E0; Pensamiento computacional</span>
+            <span class="pill">&#x1F4D0; Pensamiento matematico</span>
+            <span class="pill">&#x1F916; Robotica educativa</span>
+            <span class="pill">&#x1F3AE; Entorno gamificado</span>
+          </div>
+
+          <div class="mt-8">
+            <button onclick="nextStep()"
+              class="px-12 py-5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 rounded-2xl font-bold text-2xl transition-all duration-300 transform hover:scale-105 btn-3d btn-premium animate-pulse-glow">
+              Iniciar defensa &#10024;
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 step-counter">Diapositiva <span id="slide-n-1">1</span> / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 2 / 15 - PROBLEMA
+    ========================== -->
+    <section id="step-2" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F9E9;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Problema educativo
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-3xl mx-auto">
+            Como potenciar el pensamiento matematico y computacional en 4 de Primaria con experiencias activas y significativas?
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-3xl mb-2">&#x1F4C9;</div>
+              <div class="font-extrabold text-xl text-red-200">Dificultades</div>
+              <div class="text-white/80 mt-2">
+                Obstaculos en comprension, procedimientos, razonamiento y conexion con contexto.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-3xl mb-2">&#x1F9E0;</div>
+              <div class="font-extrabold text-xl text-yellow-200">Necesidad</div>
+              <div class="text-white/80 mt-2">
+                Introducir pensamiento computacional como enfoque para resolver problemas: planificar, probar y depurar.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-3xl mb-2">&#x1F9F2;</div>
+              <div class="font-extrabold text-xl text-green-200">Oportunidad</div>
+              <div class="text-white/80 mt-2">
+                Robotica educativa como puente concreto-abstracto, con retroalimentacion inmediata.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F501; Probar-ajustar</span>
+            <span class="pill">&#x1F9EA; Experiencia tangible</span>
+            <span class="pill">&#x1F9E0; Metacognicion</span>
+            <span class="pill">&#x1F91D; Colaboracion</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 2 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 3 / 15 - PROPUESTA
+    ========================== -->
+    <section id="step-3" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1FA90;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Propuesta de innovacion
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Unidad didactica para 4 de Primaria que integra robotica educativa con LEGO Education WeDo 2.0 (o kits similares) y un entorno web gamificado.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-3xl mb-2">&#x1F916;</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Robotica + Bloques</div>
+              <div class="text-white/85 mt-3 leading-relaxed">
+                Construccion y programacion con retroalimentacion inmediata para activar
+                secuenciacion, condicionales, bucles y depuracion.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-3xl mb-2">&#x1F3AE;</div>
+              <div class="font-extrabold text-2xl text-purple-200">Entorno gamificado</div>
+              <div class="text-white/85 mt-3 leading-relaxed">
+                Misiones autenticas con narrativa espacial, progresion y evidencias en portafolio.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-7 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F9E0; PC + PM</span>
+            <span class="pill">&#x1F9EA; Resolver problemas</span>
+            <span class="pill">&#x1F91D; Trabajo colaborativo</span>
+            <span class="pill">&#x1F4C1; Evidencias</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 3 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 4 / 15 - OBJETIVO GENERAL
+    ========================== -->
+    <section id="step-4" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F3AF;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Objetivo general
+          </h2>
+        </div>
+
+        <div class="glass-card p-8 md:p-12 rounded-3xl text-center">
+          <div class="text-2xl md:text-4xl font-extrabold leading-snug text-white/95">
+            Disenar un proyecto de innovacion tecnologica para promover el pensamiento matematico y computacional en 4. de Primaria,
+            mediante una unidad didactica con robotica educativa centrada en gamificacion.
+          </div>
+
+          <div class="mt-10 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F4D0; Matematicas</span>
+            <span class="pill">&#x1F9E0; Computacional</span>
+            <span class="pill">&#x1F916; Robotica</span>
+            <span class="pill">&#x1F3AE; Gamificacion</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 4 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 5 / 15 - OBJETIVOS ESPECIFICOS
+    ========================== -->
+    <section id="step-5" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F9ED;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Objetivos especificos
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-3">&#x1F4BB;</div>
+              <div class="font-extrabold text-xl text-cyan-200">Entorno gamificado</div>
+              <div class="text-white/85 mt-2">Disenar y programar el recurso en GitHub Pages.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-3">&#x1F9E9;</div>
+              <div class="font-extrabold text-xl text-purple-200">Sesiones integradas</div>
+              <div class="text-white/85 mt-2">Crear 4-6 sesiones que integren PC + Matematicas.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-3">&#x1F91D;</div>
+              <div class="font-extrabold text-xl text-green-200">Cooperacion</div>
+              <div class="text-white/85 mt-2">Fomentar trabajo cooperativo en equipos pequenos.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F4C1; Portafolio</span>
+            <span class="pill">&#x1F9EA; Ciclo iterativo</span>
+            <span class="pill">&#x1F9E0; Evidencias</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 5 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 6 / 15 - FUNDAMENTOS
+    ========================== -->
+    <section id="step-6" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F4DA;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Fundamentos del proyecto
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            El diseno integra pensamiento computacional, pensamiento matematico, trabajo colaborativo y robotica educativa.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-4 gap-5">
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">&#x1F9E0;</div>
+              <div class="font-extrabold mt-2 text-cyan-200">PC</div>
+              <div class="text-white/80 mt-2 text-sm">Descomposicion - patrones - abstraccion - algoritmos - razonamiento</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">&#x1F4D0;</div>
+              <div class="font-extrabold mt-2 text-purple-200">PM</div>
+              <div class="text-white/80 mt-2 text-sm">Numero - medida - geometria - datos - variacional</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">&#x1F91D;</div>
+              <div class="font-extrabold mt-2 text-green-200">Colaboracion</div>
+              <div class="text-white/80 mt-2 text-sm">Roles - coautoria - coordinacion - comunicacion</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">&#x1F916;</div>
+              <div class="font-extrabold mt-2 text-yellow-200">Robotica</div>
+              <div class="text-white/80 mt-2 text-sm">Concreto-simbolico - medir - probar - ajustar</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">&#x1F501; Construir</span>
+            <span class="pill">&#x1F9E9; Programar</span>
+            <span class="pill">&#x1F9EA; Probar</span>
+            <span class="pill">&#x1F527; Mejorar</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 6 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 7 / 15 - CONTEXTO
+    ========================== -->
+    <section id="step-7" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F4CD;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Contexto de implementacion
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F3D9;&#xFE0F;</div>
+              <div class="font-extrabold text-xl text-cyan-200">Bucaramanga (Colombia)</div>
+              <div class="text-white/85 mt-2">
+                Entorno urbano, diversidad socioeconomica y oportunidad para reducir brechas en habilidades digitales.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F3EB;</div>
+              <div class="font-extrabold text-xl text-purple-200">Microcentro de aprendizaje</div>
+              <div class="text-white/85 mt-2">
+                Grupos reducidos (6-8), conectividad, dispositivos y kits de robotica.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">&#x1F9EA; STEAM</span>
+            <span class="pill">&#x1FA91; Mobiliario flexible</span>
+            <span class="pill">&#x1F4F6; Conectividad</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 7 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 8 / 15 - DESTINATARIOS + INCLUSION
+    ========================== -->
+    <section id="step-8" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F467;&#x1F466;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Destinatarios e inclusion
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F9D2;</div>
+              <div class="font-extrabold text-xl text-cyan-200">8-10 anos</div>
+              <div class="text-white/85 mt-2">Ninos y ninas de 3 y 4 de primaria.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F3B2;</div>
+              <div class="font-extrabold text-xl text-purple-200">Aprender con retos</div>
+              <div class="text-white/85 mt-2">Narrativa, manipulacion, experimentacion y trabajo en equipo.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x267F;</div>
+              <div class="font-extrabold text-xl text-green-200">NEAE</div>
+              <div class="text-white/85 mt-2">Consignas visuales, roles flexibles, tiempos extendidos y andamiaje paso a paso.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">&#x1F9E9; Segmentacion</span>
+            <span class="pill">&#x1F9E0; Autorregulacion</span>
+            <span class="pill">&#x1F9F0; Material manipulativo</span>
+            <span class="pill">&#x1F4CC; Guias pictograficas</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 8 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 9 / 15 - METODOLOGIA (CICLO)
+    ========================== -->
+    <section id="step-9" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F501;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Metodologia
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Misiones autenticas con un ciclo iterativo para construir soluciones, validarlas y mejorarlas.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-4 gap-5">
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">&#x1F9F1;</div>
+              <div class="font-extrabold text-xl mt-2 text-yellow-200">Construir</div>
+              <div class="text-white/80 mt-2 text-sm">Prototipo RoverBot</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">&#x1F9E9;</div>
+              <div class="font-extrabold text-xl mt-2 text-cyan-200">Programar</div>
+              <div class="text-white/80 mt-2 text-sm">Bloques, secuencias, control</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">&#x1F9EA;</div>
+              <div class="font-extrabold text-xl mt-2 text-purple-200">Probar</div>
+              <div class="text-white/80 mt-2 text-sm">Medir, registrar, observar</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">&#x1F527;</div>
+              <div class="font-extrabold text-xl mt-2 text-green-200">Mejorar</div>
+              <div class="text-white/80 mt-2 text-sm">Ajustes y depuracion</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F91D; Equipos 2-3</span>
+            <span class="pill">&#x1F9ED; Roles</span>
+            <span class="pill">&#x1F4C1; Portafolio</span>
+            <span class="pill">&#x1F9E0; Reflexion</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 9 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 10 / 15 - SECUENCIA DE MISIONES
+    ========================== -->
+    <section id="step-10" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F9ED;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Secuencia de misiones
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Progresion desde ensamblaje y calibracion hasta retos con control, sensor y colaboracion.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F30C;</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Narrativa espacial</div>
+              <div class="text-white/85 mt-2">
+                Misiones contextualizadas que mantienen motivacion y sentido de proposito.
+              </div>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span class="pill">&#x1F3AE; Gamificacion</span>
+                <span class="pill">&#x1F3C5; Insignias</span>
+                <span class="pill">&#x1F513; Desbloqueo</span>
+              </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F4C8;</div>
+              <div class="font-extrabold text-2xl text-purple-200">Complejidad creciente</div>
+              <div class="text-white/85 mt-2">
+                Del control de variables (distancia/tiempo) a condicionales, bucles, sensor y tareas de equipo.
+              </div>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span class="pill">&#x1F4CF; Medicion</span>
+                <span class="pill">&#x1F4CA; Registro</span>
+                <span class="pill">&#x1F9E0; Depuracion</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 grid md:grid-cols-4 gap-4 text-center">
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">&#x1F6E0;&#xFE0F;</div>
+              <div class="font-extrabold text-yellow-200">Mision 0</div>
+              <div class="text-white/80 text-sm mt-1">Ensamblaje + conexion</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">&#x1F3D4;&#xFE0F;</div>
+              <div class="font-extrabold text-orange-200">Mision 1</div>
+              <div class="text-white/80 text-sm mt-1">Calibracion / pruebas</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">&#x1F300;</div>
+              <div class="font-extrabold text-blue-200">Mision 2</div>
+              <div class="text-white/80 text-sm mt-1">Conexion / avance guiado</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">&#x1F573;&#xFE0F;</div>
+              <div class="font-extrabold text-fuchsia-200">Mision 3</div>
+              <div class="text-white/80 text-sm mt-1">Sensor / condicion</div>
+            </div>
+          </div>
+
+          <div class="mt-4 grid md:grid-cols-1 gap-4 text-center">
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.01] transition">
+              <div class="text-5xl mb-2">&#x1F69B;</div>
+              <div class="font-extrabold text-green-200">Mision 4</div>
+              <div class="text-white/80 text-sm mt-1">Transferencia / colaboracion</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 10 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 11 / 15 - PRODUCTO (6 TARJETAS + MODAL IFRAME)
+    ========================== -->
+    <section id="step-11" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-8">
+          <div class="text-7xl mb-4 animate-float">&#x1F9EA;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Producto tecnopedagogico (recurso digital)
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Se muestra el entorno gamificado: selecciona una tarjeta para abrir la seccion correspondiente (se ejecuta en una pantalla superpuesta).
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 1 - Mision 0 (Ensamblaje)', 'https://maihoyos.github.io/exploradores/mision0.html')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-cyan-200">Tarjeta 1 - mision0.html</div>
+            <div class="mt-4 text-2xl font-extrabold">&#x1F6E0;&#xFE0F; Ensamblaje</div>
+            <div class="mt-2 text-white/80">Inicio + instrucciones + conexion.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 2 - Indice (Panel de misiones)', 'https://maihoyos.github.io/exploradores/index.html')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-purple-200">Tarjeta 2 - index.html</div>
+            <div class="mt-4 text-2xl font-extrabold">&#x1F9ED; Panel</div>
+            <div class="mt-2 text-white/80">Navegacion + progreso de misiones.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 3 - Mision 1', 'https://maihoyos.github.io/exploradores/mision1.html?reset=1770309136702')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-emerald-200">Tarjeta 3 - mision1</div>
+            <div class="mt-4 text-2xl font-extrabold">&#x1F3D4;&#xFE0F; Vectonia</div>
+            <div class="mt-2 text-white/80">Calibracion y primeros retos.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 4 - Mision 2', 'https://maihoyos.github.io/exploradores/mision2.html?reset=1770309173677')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-blue-200">Tarjeta 4 - mision2</div>
+            <div class="mt-4 text-2xl font-extrabold">&#x1F300; Zycurva</div>
+            <div class="mt-2 text-white/80">Avance guiado por retos.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 5 - Mision 3', 'https://maihoyos.github.io/exploradores/mision3.html?reset=1770309206648')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-fuchsia-200">Tarjeta 5 - mision3</div>
+            <div class="mt-4 text-2xl font-extrabold">&#x1F573;&#xFE0F; Sensorium</div>
+            <div class="mt-2 text-white/80">Condicion + control con sensor.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 6 - Mision 4', 'https://maihoyos.github.io/exploradores/mision4.html?reset=1770309233412')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-yellow-200">Tarjeta 6 - mision4</div>
+            <div class="mt-4 text-2xl font-extrabold">&#x1F69B; Transferencia</div>
+            <div class="mt-2 text-white/80">Mision integradora colaborativa.</div>
+          </button>
+        </div>
+
+        <div class="mt-8 text-center">
+          <div class="flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F3AE; Gamificacion</span>
+            <span class="pill">&#x1F3C5; Insignias</span>
+            <span class="pill">&#x1F9E9; Andamiaje</span>
+            <span class="pill">&#x1F4C1; Evidencias</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 11 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 12 / 15 - PRUEBA PILOTO
+    ========================== -->
+    <section id="step-12" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F9EA;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Prueba piloto y ajustes
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Pilotaje exploratorio del entorno gamificado para analizar claridad, coherencia y funcionalidad; ajustes derivados antes de una implementacion a mayor escala.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F50D;</div>
+              <div class="font-extrabold text-xl text-cyan-200">Que se analizo</div>
+              <div class="text-white/85 mt-2">Claridad, coherencia y funcionalidad del recurso.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F9ED;</div>
+              <div class="font-extrabold text-xl text-purple-200">Como se uso</div>
+              <div class="text-white/85 mt-2">Recorrido de misiones, andamiajes y navegacion.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F527;</div>
+              <div class="font-extrabold text-xl text-green-200">Que se ajusto</div>
+              <div class="text-white/85 mt-2">Mejoras para facilitar comprension y usabilidad.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">&#x2705; Listo para implementacion futura</span>
+            <span class="pill">&#x267B;&#xFE0F; Iteracion y mejora</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 12 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 13 / 15 - EVALUACION (APRENDIZAJE)
+    ========================== -->
+    <section id="step-13" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F4CA;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Evaluacion del aprendizaje
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Evaluacion formativa con evidencias de proceso y producto (portafolio).
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F4CB;</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Formativa</div>
+              <div class="text-white/85 mt-2">
+                Seguimiento durante las misiones: observacion, retroalimentacion y mejora.
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="pill">&#x1F9E0; Depuracion</span>
+                <span class="pill">&#x1F4CF; Medicion</span>
+                <span class="pill">&#x1F9FE; Registro</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F4C1;</div>
+              <div class="font-extrabold text-2xl text-purple-200">Portafolio</div>
+              <div class="text-white/85 mt-2">
+                Artefactos: codigo, prototipos, tablas/graficas, capturas y narrativas reflexivas.
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="pill">&#x1F9E9; Codigo</span>
+                <span class="pill">&#x1F4CA; Datos</span>
+                <span class="pill">&#x270D;&#xFE0F; Reflexion</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">&#x1F3AF; Criterios explicitos</span>
+            <span class="pill">&#x1F9E0; Metacognicion</span>
+            <span class="pill">&#x1F91D; Evidencias de coautoria</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 13 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 14 / 15 - CONCLUSIONES
+    ========================== -->
+    <section id="step-14" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x2705;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Conclusiones
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F916;</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Aporte didactico</div>
+              <div class="text-white/85 mt-2">
+                Propuesta transferible y escalable que integra robotica y gamificacion para potenciar PC y PM en primaria.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F9E0;</div>
+              <div class="font-extrabold text-2xl text-purple-200">Aprendizajes</div>
+              <div class="text-white/85 mt-2">
+                Fortalece resolucion de problemas, colaboracion, registro de evidencias y ciclos de mejora.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">&#x1F4D0; Curriculo</span>
+            <span class="pill">&#x1F9E9; Programacion por bloques</span>
+            <span class="pill">&#x1F9EA; Ciclo iterativo</span>
+            <span class="pill">&#x1F3AE; Motivacion</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente &#8594;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 14 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 15 / 15 - LIMITACIONES + PROSPECTIVA
+    ========================== -->
+    <section id="step-15" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">&#x1F52D;</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Limitaciones y prospectiva
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Cierre con mirada de futuro: implementacion ampliada y evaluacion en contexto escolar formal.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x23F3;</div>
+              <div class="font-extrabold text-xl text-yellow-200">Limitacion</div>
+              <div class="text-white/85 mt-2">Pilotaje exploratorio y necesidad de implementacion a mayor escala.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F3EB;</div>
+              <div class="font-extrabold text-xl text-cyan-200">Futuro 1</div>
+              <div class="text-white/85 mt-2">Aplicacion en aula formal con grupos completos y continuidad.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">&#x1F4C8;</div>
+              <div class="font-extrabold text-xl text-purple-200">Futuro 2</div>
+              <div class="text-white/85 mt-2">Evaluacion longitudinal: progreso en PC, PM y colaboracion.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <div class="glass-card rounded-2xl p-6 inline-block">
+              <div class="text-2xl font-extrabold text-green-200">&#10024; Gracias</div>
+              <div class="text-white/80 mt-1">Quedo atenta a sus preguntas.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <button onclick="goToStep(1)"
+              class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">
+              &#8634; Volver al inicio
+            </button>
+            <button onclick="goToStep(11)"
+              class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">
+              &#x1F9EA; Volver al producto
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">&#8592; Anterior</button>
+          <button onclick="goToStep(1)" class="px-8 py-4 bg-green-600 hover:bg-green-700 rounded-2xl font-bold btn-3d btn-premium">Finalizar &#10004;</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 15 / 15</div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal Producto (iframe) -->
+  <div id="product-modal" aria-hidden="true">
+    <div id="product-modal-backdrop"></div>
+
+    <div class="product-modal-panel">
+      <div class="product-modal-topbar">
+        <div class="product-modal-title" id="product-modal-title">Producto</div>
+
+        <div class="product-modal-actions">
+          <a id="product-modal-opennew"
+             class="product-modal-btn btn-premium"
+             href="#"
+             target="_blank"
+             rel="noopener noreferrer"
+             title="Abrir en una pestana nueva">
+            &#8599; Abrir
+          </a>
+
+          <button id="product-modal-close" class="product-modal-btn btn-premium" aria-label="Cerrar (ESC)">
+            &#10005;
+          </button>
+        </div>
+      </div>
+
+      <iframe id="product-modal-iframe" class="product-iframe" title="Producto Zython" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    // ====== ESTRELLAS ======
+    function createStars() {
+      const starsContainer = document.getElementById('stars');
+      if (!starsContainer) return;
+      starsContainer.innerHTML = '';
+      for (let i = 0; i < 150; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        const size = Math.random() * 3 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+        star.style.animationDelay = Math.random() * 3 + 's';
+        starsContainer.appendChild(star);
+      }
+    }
+
+    document.addEventListener('mousemove', function(e) {
+      const x = (e.clientX / window.innerWidth - 0.5) * 10;
+      const y = (e.clientY / window.innerHeight - 0.5) * 10;
+      var stars = document.getElementById('stars');
+      if (stars) stars.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+    });
+
+    // ====== PARTICULAS FLOTANTES ======
+    function createParticles() {
+      var container = document.getElementById('particles-container');
+      if (!container) return;
+      for (var i = 0; i < 25; i++) {
+        var p = document.createElement('div');
+        p.className = 'particle';
+        var size = Math.random() * 3 + 1;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.background = Math.random() > 0.5
+          ? 'rgba(96,165,250,' + (Math.random() * 0.4 + 0.2) + ')'
+          : 'rgba(167,139,250,' + (Math.random() * 0.4 + 0.2) + ')';
+        p.style.animationDuration = (Math.random() * 12 + 8) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        container.appendChild(p);
+      }
+    }
+
+    // ====== ESTRELLAS FUGACES ALEATORIAS ======
+    function spawnShootingStar() {
+      var star = document.createElement('div');
+      star.className = 'shooting-star';
+      star.style.top = Math.random() * 50 + '%';
+      star.style.left = Math.random() * 60 + '%';
+      document.body.appendChild(star);
+      setTimeout(function() { star.remove(); }, 1500);
+    }
+    setInterval(function() {
+      if (Math.random() > 0.6) spawnShootingStar();
+    }, 4000);
+
+    // ====== SLIDE DOTS INDICATOR ======
+    function createSlideIndicator() {
+      var indicator = document.getElementById('slide-indicator');
+      if (!indicator) return;
+      for (var i = 1; i <= TOTAL_STEPS; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'slide-dot';
+        dot.dataset.step = i;
+        dot.title = 'Diapositiva ' + i;
+        (function(step) {
+          dot.addEventListener('click', function() { goToStep(step); });
+        })(i);
+        indicator.appendChild(dot);
+      }
+    }
+
+    function updateSlideIndicator() {
+      var dots = document.querySelectorAll('.slide-dot');
+      dots.forEach(function(dot) {
+        var step = parseInt(dot.dataset.step);
+        if (step === currentStep) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+
+    // ====== AUDIO AMBIENTAL (Web Audio API) ======
+    var audioCtx = null;
+    var ambientNodes = [];
+    var isAudioPlaying = false;
+
+    function initAmbientAudio() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        var masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.07;
+        masterGain.connect(audioCtx.destination);
+
+        // Drone harmonico espacial
+        var freqs = [55, 82.5, 110, 165];
+        freqs.forEach(function(freq, idx) {
+          var osc = audioCtx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+
+          var oscGain = audioCtx.createGain();
+          oscGain.gain.value = 0.15 / (idx + 1);
+
+          // LFO para modulacion sutil
+          var lfo = audioCtx.createOscillator();
+          lfo.type = 'sine';
+          lfo.frequency.value = 0.05 + Math.random() * 0.1;
+          var lfoGain = audioCtx.createGain();
+          lfoGain.gain.value = freq * 0.005;
+          lfo.connect(lfoGain);
+          lfoGain.connect(osc.frequency);
+          lfo.start();
+
+          osc.connect(oscGain);
+          oscGain.connect(masterGain);
+          osc.start();
+
+          ambientNodes.push(osc, lfo, oscGain, lfoGain);
         });
 
-        // Create stars background
-        function createStars() {
-            const container = document.getElementById('stars');
-            for (let i = 0; i < 200; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.cssText = `
-                    left: ${Math.random() * 100}%;
-                    top: ${Math.random() * 100}%;
-                    width: ${Math.random() * 2 + 1}px;
-                    height: ${Math.random() * 2 + 1}px;
-                    --opacity: ${Math.random() * 0.5 + 0.3};
-                    --duration: ${Math.random() * 3 + 2}s;
-                    animation-delay: ${Math.random() * 3}s;
-                `;
-                container.appendChild(star);
-            }
+        ambientNodes.push(masterGain);
+        isAudioPlaying = true;
+        document.getElementById('audio-toggle').classList.add('playing');
+      } catch (e) {
+        // Audio no soportado
+      }
+    }
+
+    function toggleAudio() {
+      if (!audioCtx) {
+        initAmbientAudio();
+        return;
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+        isAudioPlaying = true;
+        document.getElementById('audio-toggle').classList.add('playing');
+      } else if (isAudioPlaying) {
+        audioCtx.suspend();
+        isAudioPlaying = false;
+        document.getElementById('audio-toggle').classList.remove('playing');
+      } else {
+        audioCtx.resume();
+        isAudioPlaying = true;
+        document.getElementById('audio-toggle').classList.add('playing');
+      }
+    }
+
+    // Sonido de transicion (whoosh sutil)
+    function playTransitionSound() {
+      if (!audioCtx || !isAudioPlaying) return;
+      try {
+        var osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.3);
+
+        var gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch (e) {}
+    }
+
+    document.getElementById('audio-toggle').addEventListener('click', toggleAudio);
+
+    // ====== NAVEGACION STEPS ======
+    var TOTAL_STEPS = 15;
+    var currentStep = 1;
+    var isTransitioning = false;
+
+    var subtitleMap = {
+      1: 'Portada',
+      2: 'Problema educativo',
+      3: 'Propuesta de innovacion',
+      4: 'Objetivo general',
+      5: 'Objetivos especificos',
+      6: 'Fundamentos del proyecto',
+      7: 'Contexto de implementacion',
+      8: 'Destinatarios e inclusion',
+      9: 'Metodologia',
+      10: 'Secuencia de misiones',
+      11: 'Producto tecnopedagogico',
+      12: 'Prueba piloto y ajustes',
+      13: 'Evaluacion del aprendizaje',
+      14: 'Conclusiones',
+      15: 'Limitaciones y prospectiva'
+    };
+
+    function showStep(n, direction) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      var dir = direction || 'right';
+
+      // Efectos de transicion
+      playTransitionSound();
+
+      // Flash del grid overlay
+      var gridOverlay = document.getElementById('grid-overlay');
+      if (gridOverlay) {
+        gridOverlay.classList.remove('flash');
+        void gridOverlay.offsetWidth;
+        gridOverlay.classList.add('flash');
+      }
+
+      // Flash de transicion radial
+      var transOverlay = document.getElementById('slide-transition');
+      if (transOverlay) {
+        transOverlay.classList.remove('active');
+        void transOverlay.offsetWidth;
+        transOverlay.classList.add('active');
+      }
+
+      // Ocultar todos
+      for (var i = 1; i <= TOTAL_STEPS; i++) {
+        var el = document.getElementById('step-' + i);
+        if (!el) continue;
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+
+      // Mostrar el actual con animacion direccional
+      var cur = document.getElementById('step-' + n);
+      if (cur) {
+        cur.classList.remove('hidden');
+        cur.classList.add('flex');
+
+        // Aplicar animacion de entrada
+        var content = cur.querySelector('div');
+        if (content) {
+          content.classList.remove('slide-enter', 'slide-enter-right', 'slide-enter-left');
+          void content.offsetWidth;
+          if (dir === 'right') {
+            content.classList.add('slide-enter-right');
+          } else if (dir === 'left') {
+            content.classList.add('slide-enter-left');
+          } else {
+            content.classList.add('slide-enter');
+          }
         }
+      }
 
-        // Create floating particles
-        function createParticles() {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.cssText = `
-                    left: ${Math.random() * 100}%;
-                    animation-delay: ${Math.random() * 15}s;
-                    animation-duration: ${Math.random() * 10 + 15}s;
-                `;
-                container.appendChild(particle);
-            }
-        }
+      currentStep = n;
+      updateProgress();
+      updateHeader();
+      updateSlideIndicator();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Create progress dots
-        function createProgressDots() {
-            const container = document.getElementById('progressDots');
-            for (let i = 1; i <= TOTAL_SLIDES; i++) {
-                const dot = document.createElement('div');
-                dot.className = `progress-dot ${i === 1 ? 'active' : ''}`;
-                dot.onclick = () => goToSlide(i);
-                container.appendChild(dot);
-            }
-        }
+      setTimeout(function() { isTransitioning = false; }, 500);
+    }
 
-        // Navigation functions
-        function nextSlide() {
-            if (currentSlide < TOTAL_SLIDES && !isTransitioning) {
-                changeSlide(currentSlide + 1, 'next');
-            }
-        }
+    function goToStep(n) {
+      var target = Math.min(Math.max(n, 1), TOTAL_STEPS);
+      var dir = target > currentStep ? 'right' : 'left';
+      showStep(target, dir);
+    }
 
-        function prevSlide() {
-            if (currentSlide > 1 && !isTransitioning) {
-                changeSlide(currentSlide - 1, 'prev');
-            }
-        }
+    function nextStep() {
+      if (currentStep < TOTAL_STEPS) showStep(currentStep + 1, 'right');
+    }
 
-        function goToSlide(slideNum) {
-            if (slideNum !== currentSlide && !isTransitioning) {
-                const direction = slideNum > currentSlide ? 'next' : 'prev';
-                changeSlide(slideNum, direction);
-            }
-        }
+    function prevStep() {
+      if (currentStep > 1) showStep(currentStep - 1, 'left');
+    }
 
-        function changeSlide(newSlide, direction) {
-            isTransitioning = true;
+    function updateProgress() {
+      var pct = Math.round((currentStep - 1) / (TOTAL_STEPS - 1) * 100);
+      var bar = document.getElementById('progress-bar');
+      var text = document.getElementById('progress-text');
+      if (bar) bar.style.width = pct + '%';
+      if (text) text.textContent = pct + '%';
+    }
 
-            // Play transition sound
-            playTransitionSound();
+    function updateHeader() {
+      var sub = document.getElementById('header-subtitle');
+      if (!sub) return;
+      var title = subtitleMap[currentStep] || 'En progreso';
+      sub.textContent = 'Diapositiva ' + currentStep + ' - ' + title;
+    }
 
-            // Get elements
-            const currentSlideEl = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
-            const newSlideEl = document.querySelector(`.slide[data-slide="${newSlide}"]`);
-            const overlay = document.getElementById('transitionOverlay');
+    // Atajos teclado
+    document.addEventListener('keydown', function(e) {
+      var modal = document.getElementById('product-modal');
+      var modalOpen = modal && modal.classList.contains('show');
+      if (modalOpen) return;
 
-            // Animate overlay
-            overlay.classList.remove('active-next', 'active-prev');
-            overlay.classList.add(direction === 'next' ? 'active-next' : 'active-prev');
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        nextStep();
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevStep();
+      }
+      if (e.key === 'Home') goToStep(1);
+      if (e.key === 'End') goToStep(TOTAL_STEPS);
+    });
 
-            // Animate current slide out
-            currentSlideEl.classList.remove('active');
-            currentSlideEl.classList.add(direction === 'next' ? 'exit-next' : 'exit-prev');
+    // Touch/swipe soporte
+    var touchStartX = 0;
+    var touchStartY = 0;
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    document.addEventListener('touchend', function(e) {
+      var diffX = e.changedTouches[0].screenX - touchStartX;
+      var diffY = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 60) {
+        if (diffX < 0) nextStep();
+        else prevStep();
+      }
+    }, { passive: true });
 
-            // Show new slide after delay
-            setTimeout(() => {
-                currentSlideEl.classList.remove('exit-next', 'exit-prev');
-                currentSlideEl.style.display = 'none';
-                
-                newSlideEl.classList.add('active');
-                currentSlide = newSlide;
-                updateNavigation();
+    // ====== MODAL PRODUCTO ======
+    function openProductModal(title, url) {
+      var modal = document.getElementById('product-modal');
+      var backdrop = document.getElementById('product-modal-backdrop');
+      var closeBtn = document.getElementById('product-modal-close');
+      var iframe = document.getElementById('product-modal-iframe');
+      var ttl = document.getElementById('product-modal-title');
+      var openNew = document.getElementById('product-modal-opennew');
 
-                setTimeout(() => {
-                    isTransitioning = false;
-                    overlay.classList.remove('active-next', 'active-prev');
-                }, 300);
-            }, 400);
-        }
+      if (!modal || !backdrop || !closeBtn || !iframe || !ttl || !openNew) return;
 
-        function updateNavigation() {
-            // Update counter
-            document.getElementById('slideCounter').textContent = `${currentSlide} / ${TOTAL_SLIDES}`;
+      ttl.textContent = title || 'Producto Zython';
+      iframe.src = url;
+      openNew.href = url;
 
-            // Update buttons
-            document.getElementById('prevBtn').disabled = currentSlide === 1;
-            document.getElementById('nextBtn').disabled = currentSlide === TOTAL_SLIDES;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
 
-            // Update dots
-            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
-                dot.classList.toggle('active', index + 1 === currentSlide);
-            });
-        }
+      closeBtn.focus();
 
-        // Audio functions
-        function initAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-
-        function toggleSound() {
-            initAudio();
-            
-            if (isSoundEnabled) {
-                stopAmbientSound();
-                document.getElementById('soundIcon').textContent = '🔇';
-                document.getElementById('soundText').textContent = 'Activar Sonido';
-                document.getElementById('soundBtn').classList.remove('active');
-            } else {
-                startAmbientSound();
-                document.getElementById('soundIcon').textContent = '🔊';
-                document.getElementById('soundText').textContent = 'Silenciar';
-                document.getElementById('soundBtn').classList.add('active');
-            }
-            isSoundEnabled = !isSoundEnabled;
-        }
-
-        function startAmbientSound() {
-            // Create gain node for volume control
-            ambientGain = audioContext.createGain();
-            ambientGain.gain.value = 0.08; // Very low volume
-            ambientGain.connect(audioContext.destination);
-
-            // Create multiple oscillators for rich ambient sound
-            const frequencies = [55, 82.5, 110, 165]; // Low harmonic frequencies
-            
-            frequencies.forEach((freq, index) => {
-                const osc = audioContext.createOscillator();
-                const oscGain = audioContext.createGain();
-                
-                osc.type = 'sine';
-                osc.frequency.value = freq;
-                oscGain.gain.value = 0.3 / (index + 1); // Decreasing volume for higher harmonics
-                
-                // Add subtle LFO modulation
-                const lfo = audioContext.createOscillator();
-                const lfoGain = audioContext.createGain();
-                lfo.type = 'sine';
-                lfo.frequency.value = 0.1 + (index * 0.05);
-                lfoGain.gain.value = freq * 0.02;
-                
-                lfo.connect(lfoGain);
-                lfoGain.connect(osc.frequency);
-                lfo.start();
-                
-                osc.connect(oscGain);
-                oscGain.connect(ambientGain);
-                osc.start();
-                
-                ambientOscillators.push({ osc, lfo, oscGain });
-            });
-        }
-
-        function stopAmbientSound() {
-            ambientOscillators.forEach(({ osc, lfo }) => {
-                osc.stop();
-                lfo.stop();
-            });
-            ambientOscillators = [];
-        }
-
-        function playTransitionSound() {
-            if (!isSoundEnabled) return;
-            initAudio();
-
-            // Create a subtle whoosh sound
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            const filter = audioContext.createBiquadFilter();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, audioContext.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
-
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
-            filter.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.3);
-
-            gain.gain.setValueAtTime(0, audioContext.currentTime);
-            gain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(audioContext.destination);
-
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.3);
-        }
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowRight':
-                case ' ':
-                case 'Enter':
-                    e.preventDefault();
-                    nextSlide();
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    prevSlide();
-                    break;
-                case 'Home':
-                    e.preventDefault();
-                    goToSlide(1);
-                    break;
-                case 'End':
-                    e.preventDefault();
-                    goToSlide(TOTAL_SLIDES);
-                    break;
-            }
+      if (!modal.dataset.bound) {
+        closeBtn.addEventListener('click', closeProductModal);
+        backdrop.addEventListener('click', closeProductModal);
+        document.addEventListener('keydown', function(e) {
+          var isOpen = modal.classList.contains('show');
+          if (!isOpen) return;
+          if (e.key === 'Escape') closeProductModal();
         });
+        modal.dataset.bound = '1';
+      }
+    }
 
-        // Touch/swipe support
-        let touchStartX = 0;
-        let touchEndX = 0;
+    function closeProductModal() {
+      var modal = document.getElementById('product-modal');
+      var iframe = document.getElementById('product-modal-iframe');
+      if (!modal || !iframe) return;
 
-        document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      iframe.src = '';
+      document.body.style.overflow = '';
+    }
 
-        document.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    nextSlide();
-                } else {
-                    prevSlide();
-                }
-            }
-        }
-    </script>
+    // ====== INIT ======
+    document.addEventListener('DOMContentLoaded', function() {
+      createStars();
+      createParticles();
+      createSlideIndicator();
+      showStep(1, 'right');
+    });
+  </script>
 </body>
 </html>
