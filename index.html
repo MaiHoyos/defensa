@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Defensa TFM - Zython</title>
+  <title>Defensa TFM · Zython (15 diapositivas)</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,25 +35,26 @@
       background: linear-gradient(-45deg, #1a0b2e, #16213e, #0f3460, #533483);
       background-size: 400% 400%;
       animation: gradientShift 15s ease infinite;
-      padding-top: 92px; /* espacio para header fijo */
+      padding-top: 92px;
     }
 
     @keyframes float {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-18px); }
     }
-    @keyframes float2 {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-12px); }
-    }
-    @keyframes fadeInScale {
-      from { opacity: 0; transform: translateY(30px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
+
     @keyframes pulse-glow {
       0%, 100% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(147, 51, 234, 0.4); }
       50% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.9), 0 0 90px rgba(147, 51, 234, 0.6); }
     }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
     @keyframes titleGlow {
       0%, 100% {
         text-shadow: 0 0 20px rgba(59, 130, 246, 0.8),
@@ -68,11 +68,11 @@
       }
     }
 
-    .animate-float { animation: float 4s ease-in-out infinite; }
-    .animate-float2 { animation: float2 5.2s ease-in-out infinite; }
-    .animate-fade-in-scale { animation: fadeInScale 0.8s ease-out; }
-    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
     .title-hero { animation: titleGlow 3s ease-in-out infinite; }
+    .animate-float { animation: float 4s ease-in-out infinite; }
+    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+    .animate-fade-in-scale { animation: fadeInScale 0.8s ease-out; }
+    .animate-fade-in { animation: fadeIn 1.2s ease-out; }
 
     .stars {
       position: fixed;
@@ -121,54 +121,146 @@
     }
     .btn-premium:hover::after{ transform: rotate(25deg) translateX(40%); }
 
-    .chip{
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.14);
+    .text-glow { text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+
+    /* "Burbujas" limpias */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      padding: .55rem .9rem;
       border-radius: 9999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.16);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 30px rgba(0,0,0,.25);
+      transition: transform .25s ease, background .25s ease;
+    }
+    .pill:hover{ transform: translateY(-2px); background: rgba(255,255,255,.14); }
+
+    .step-counter {
+      font-weight: 800;
+      letter-spacing: .5px;
+      color: rgba(255,255,255,.78);
     }
 
-    /* Overlay "pantalla grande" (NO drawer) */
-    #card-modal {
+    /* Tarjetas flotantes producto */
+    .float-card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(18px);
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .float-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(circle at 30% 20%, rgba(96,165,250,.35), transparent 55%),
+                  radial-gradient(circle at 80% 70%, rgba(167,139,250,.28), transparent 55%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .float-card:hover{
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 22px 80px rgba(0,0,0,.55);
+    }
+    .float-card .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      font-weight:700;
+      padding:.35rem .7rem;
+      border-radius:9999px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .float-orb{
+      position:absolute;
+      width: 140px; height: 140px;
+      border-radius: 9999px;
+      opacity:.9;
+      pointer-events:none;
+      mix-blend-mode: screen;
+      animation: float 5s ease-in-out infinite;
+    }
+    .float-orb.one{ right:-40px; top:-40px; background: radial-gradient(circle, rgba(96,165,250,.45), transparent 65%); }
+    .float-orb.two{ left:-45px; bottom:-45px; background: radial-gradient(circle, rgba(167,139,250,.45), transparent 65%); animation-duration: 6.2s; }
+
+    /* Modal del producto (iframe) */
+    #product-modal{
       position: fixed;
       inset: 0;
-      z-index: 9999;
+      z-index: 99999;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 1rem;
     }
-    #card-modal.show { display: flex; }
-
-    #card-modal-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,.70);
-      backdrop-filter: blur(6px);
+    #product-modal.show{ display:flex; }
+    #product-modal-backdrop{
+      position:absolute;
+      inset:0;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(10px);
     }
-
-    .modal-shell{
+    .product-modal-panel{
       position: relative;
-      z-index: 1;
-      width: 100%;
-      max-width: 1100px;
-      border-radius: 28px;
+      z-index: 2;
+      width: min(1200px, 96vw);
+      height: min(720px, 86vh);
+      border-radius: 26px;
       overflow: hidden;
+      border: 1px solid rgba(255,255,255,.16);
+      box-shadow: 0 25px 80px rgba(0,0,0,.65);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(16px);
+    }
+    .product-modal-topbar{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .75rem .9rem;
+      background: rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .product-modal-title{
+      font-weight: 800;
+      color: rgba(255,255,255,.92);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .product-modal-actions{
+      display:flex;
+      align-items:center;
+      gap: .5rem;
+    }
+    .product-modal-btn{
+      padding: .55rem .8rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+      font-weight: 800;
+      transition: .2s ease;
+    }
+    .product-modal-btn:hover{ background: rgba(255,255,255,.18); }
+    .product-iframe{
+      width: 100%;
+      height: calc(100% - 54px);
+      border: 0;
+      background: rgba(0,0,0,.2);
+    }
+    @media (max-width: 768px){
+      .product-modal-panel{ height: min(720px, 90vh); }
     }
 
-    .holo-grid {
-      position: absolute;
-      inset: -40px;
-      background:
-        radial-gradient(circle at 25% 30%, rgba(96,165,250,.14), transparent 40%),
-        radial-gradient(circle at 75% 20%, rgba(167,139,250,.12), transparent 45%),
-        radial-gradient(circle at 60% 80%, rgba(34,211,238,.10), transparent 45%),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 28px),
-        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 28px);
-      mask-image: radial-gradient(circle at 50% 30%, rgba(0,0,0,1), rgba(0,0,0,.4) 55%, rgba(0,0,0,0) 78%);
-      opacity: .75;
-      pointer-events: none;
-    }
-
+    /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
       * { animation: none !important; transition: none !important; }
     }
@@ -184,8 +276,8 @@
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl">🪐</div>
         <div>
-          <div class="font-bold leading-none">Zython</div>
-          <div class="text-xs text-white/70" id="header-subtitle">Portada</div>
+          <div class="font-bold leading-none">Defensa · Zython</div>
+          <div id="header-subtitle" class="text-xs text-white/70">Diapositiva 1 · Portada</div>
         </div>
       </div>
 
@@ -197,302 +289,885 @@
         <div id="progress-text" class="text-xs text-white/70 w-12 text-right">0%</div>
       </div>
 
-      <button
-        class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-        title="Volver al inicio"
-        type="button"
-        onclick="goToStep(0)"
-      >
-        ⬅️ Inicio
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="prevStep()"
+          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+          title="Anterior (←)">
+          ←
+        </button>
+        <button onclick="nextStep()"
+          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
+          title="Siguiente (→)">
+          →
+        </button>
+      </div>
     </div>
   </header>
 
   <div class="relative z-10 min-h-screen flex flex-col">
 
-    <!-- STEP 0: Portada (tu estilo) -->
-    <div id="step-0" class="step-container min-h-screen flex flex-col items-center justify-center p-6">
-      <div class="max-w-6xl text-center animate-fade-in-scale">
-        <div class="text-9xl mb-12 animate-float">🚀</div>
+    <!-- =========================
+         STEP 1 / 15 · PORTADA
+    ========================== -->
+    <section id="step-1" class="step-container min-h-screen flex items-center justify-center p-6">
+      <div class="max-w-6xl w-full text-center animate-fade-in-scale">
+        <div class="text-8xl mb-8 animate-float">🚀</div>
 
-        <h1 class="text-6xl md:text-8xl font-bold mb-6 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent title-hero leading-tight">
-          EXPLORACIÓN<br/>DE ZYTHON
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-5 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent title-hero leading-tight">
+          Exploradores del Espacio<br/>Misiones con Robots
         </h1>
 
-        <div class="max-w-4xl mx-auto mt-10 glass-card p-6 md:p-8">
-          <p class="text-sm md:text-base text-white/70 mb-2">Trabajo Fin de Máster</p>
-          <h2 class="text-2xl md:text-4xl font-bold text-white/95 leading-snug">
-            Diseño de una unidad didáctica mediante el uso de robótica para promover el pensamiento matemático y computacional en 4.º de Primaria
+        <div class="glass-card p-6 md:p-8 rounded-3xl max-w-4xl mx-auto">
+          <div class="text-white/90 text-lg md:text-xl leading-relaxed">
+            <div class="font-bold text-white/95">Trabajo Fin de Máster</div>
+            <div class="mt-2 text-white/80">Máster Universitario en Tecnología Educativa y Competencias Digitales</div>
+
+            <div class="mt-6 grid md:grid-cols-2 gap-4 text-left">
+              <div class="glass-card rounded-2xl p-5">
+                <div class="text-white/70 text-sm">Autora</div>
+                <div class="font-bold text-xl">Maileen Julissa Hoyos Castellanos</div>
+                <div class="text-white/70 text-sm mt-2">Especialidad</div>
+                <div class="font-bold">Proyecto de Innovación</div>
+              </div>
+              <div class="glass-card rounded-2xl p-5">
+                <div class="text-white/70 text-sm">Dirección</div>
+                <div class="font-bold text-xl">Albert Valls Pou</div>
+                <div class="text-white/70 text-sm mt-2">Fecha</div>
+                <div class="font-bold">05/02/2026</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">🧠 Pensamiento computacional</span>
+            <span class="pill">📐 Pensamiento matemático</span>
+            <span class="pill">🤖 Robótica educativa</span>
+            <span class="pill">🎮 Entorno gamificado</span>
+          </div>
+
+          <div class="mt-8">
+            <button onclick="nextStep()"
+              class="px-12 py-5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 rounded-2xl font-bold text-2xl transition-all duration-300 transform hover:scale-105 btn-3d btn-premium animate-pulse-glow">
+              Iniciar defensa ✨
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 step-counter">Diapositiva <span id="slide-n-1">1</span> / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 2 / 15 · PROBLEMA
+    ========================== -->
+    <section id="step-2" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🧩</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Problema educativo
           </h2>
-          <p class="mt-4 text-lg md:text-xl text-white/90">
-            <span class="text-white/70">Estudiante:</span>
-            <span class="font-bold">Maileen Julissa Hoyos Castellanos</span>
+          <p class="mt-3 text-white/80 text-lg max-w-3xl mx-auto">
+            ¿Cómo potenciar el pensamiento matemático y computacional en 4º de Primaria con experiencias activas y significativas?
           </p>
         </div>
 
-        <div class="mt-10">
-          <button onclick="nextStep()"
-            class="px-16 py-8 bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 rounded-3xl font-bold text-4xl transition-all duration-300 transform hover:scale-110 animate-pulse-glow btn-3d btn-premium">
-            Iniciar 🌟
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-3xl mb-2">📉</div>
+              <div class="font-extrabold text-xl text-red-200">Dificultades</div>
+              <div class="text-white/80 mt-2">
+                Obstáculos en comprensión, procedimientos, razonamiento y conexión con contexto.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-3xl mb-2">🧠</div>
+              <div class="font-extrabold text-xl text-yellow-200">Necesidad</div>
+              <div class="text-white/80 mt-2">
+                Introducir pensamiento computacional como enfoque para resolver problemas: planificar, probar y depurar.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-3xl mb-2">🧲</div>
+              <div class="font-extrabold text-xl text-green-200">Oportunidad</div>
+              <div class="text-white/80 mt-2">
+                Robótica educativa como puente concreto–abstracto, con retroalimentación inmediata.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">🔁 Probar–ajustar</span>
+            <span class="pill">🧪 Experiencia tangible</span>
+            <span class="pill">🧠 Metacognición</span>
+            <span class="pill">🤝 Colaboración</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 2 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 3 / 15 · PROPUESTA
+    ========================== -->
+    <section id="step-3" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🪐</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Propuesta de innovación
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Unidad didáctica para 4º de Primaria que integra robótica educativa con LEGO® Education WeDo 2.0 (o kits similares) y un entorno web gamificado.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-3xl mb-2">🤖</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Robótica + Bloques</div>
+              <div class="text-white/85 mt-3 leading-relaxed">
+                Construcción y programación con retroalimentación inmediata para activar
+                secuenciación, condicionales, bucles y depuración.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-3xl mb-2">🎮</div>
+              <div class="font-extrabold text-2xl text-purple-200">Entorno gamificado</div>
+              <div class="text-white/85 mt-3 leading-relaxed">
+                Misiones auténticas con narrativa espacial, progresión y evidencias en portafolio.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-7 flex justify-center gap-3 flex-wrap">
+            <span class="pill">🧠 PC + PM</span>
+            <span class="pill">🧪 Resolver problemas</span>
+            <span class="pill">🤝 Trabajo colaborativo</span>
+            <span class="pill">📁 Evidencias</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 3 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 4 / 15 · OBJETIVO GENERAL
+    ========================== -->
+    <section id="step-4" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🎯</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Objetivo general
+          </h2>
+        </div>
+
+        <div class="glass-card p-8 md:p-12 rounded-3xl text-center">
+          <div class="text-2xl md:text-4xl font-extrabold leading-snug text-white/95">
+            Diseñar un proyecto de innovación tecnológica para promover el pensamiento matemático y computacional en 4.º de Primaria,
+            mediante una unidad didáctica con robótica educativa centrada en gamificación.
+          </div>
+
+          <div class="mt-10 flex justify-center gap-3 flex-wrap">
+            <span class="pill">📐 Matemáticas</span>
+            <span class="pill">🧠 Computacional</span>
+            <span class="pill">🤖 Robótica</span>
+            <span class="pill">🎮 Gamificación</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 4 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 5 / 15 · OBJETIVOS ESPECÍFICOS
+    ========================== -->
+    <section id="step-5" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🧭</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Objetivos específicos
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-3">💻</div>
+              <div class="font-extrabold text-xl text-cyan-200">Entorno gamificado</div>
+              <div class="text-white/85 mt-2">Diseñar y programar el recurso en GitHub Pages.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-3">🧩</div>
+              <div class="font-extrabold text-xl text-purple-200">Sesiones integradas</div>
+              <div class="text-white/85 mt-2">Crear 4–6 sesiones que integren PC + Matemáticas.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-3">🤝</div>
+              <div class="font-extrabold text-xl text-green-200">Cooperación</div>
+              <div class="text-white/85 mt-2">Fomentar trabajo cooperativo en equipos pequeños.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">📁 Portafolio</span>
+            <span class="pill">🧪 Ciclo iterativo</span>
+            <span class="pill">🧠 Evidencias</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 5 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 6 / 15 · FUNDAMENTOS
+    ========================== -->
+    <section id="step-6" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">📚</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Fundamentos del proyecto
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            El diseño integra pensamiento computacional, pensamiento matemático, trabajo colaborativo y robótica educativa.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-4 gap-5">
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">🧠</div>
+              <div class="font-extrabold mt-2 text-cyan-200">PC</div>
+              <div class="text-white/80 mt-2 text-sm">Descomposición · patrones · abstracción · algoritmos · razonamiento</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">📐</div>
+              <div class="font-extrabold mt-2 text-purple-200">PM</div>
+              <div class="text-white/80 mt-2 text-sm">Número · medida · geometría · datos · variacional</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">🤝</div>
+              <div class="font-extrabold mt-2 text-green-200">Colaboración</div>
+              <div class="text-white/80 mt-2 text-sm">Roles · coautoría · coordinación · comunicación</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6">
+              <div class="text-4xl">🤖</div>
+              <div class="font-extrabold mt-2 text-yellow-200">Robótica</div>
+              <div class="text-white/80 mt-2 text-sm">Concreto–simbólico · medir · probar · ajustar</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center text-white/85">
+            <span class="pill">🔁 Construir</span>
+            <span class="pill">🧩 Programar</span>
+            <span class="pill">🧪 Probar</span>
+            <span class="pill">🔧 Mejorar</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 6 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 7 / 15 · CONTEXTO
+    ========================== -->
+    <section id="step-7" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">📍</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Contexto de implementación
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🏙️</div>
+              <div class="font-extrabold text-xl text-cyan-200">Bucaramanga (Colombia)</div>
+              <div class="text-white/85 mt-2">
+                Entorno urbano, diversidad socioeconómica y oportunidad para reducir brechas en habilidades digitales.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🏫</div>
+              <div class="font-extrabold text-xl text-purple-200">Microcentro de aprendizaje</div>
+              <div class="text-white/85 mt-2">
+                Grupos reducidos (6–8), conectividad, dispositivos y kits de robótica.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">🧪 STEAM</span>
+            <span class="pill">🪑 Mobiliario flexible</span>
+            <span class="pill">📶 Conectividad</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 7 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 8 / 15 · DESTINATARIOS + INCLUSIÓN
+    ========================== -->
+    <section id="step-8" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">👧👦</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Destinatarios e inclusión
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🧒</div>
+              <div class="font-extrabold text-xl text-cyan-200">8–10 años</div>
+              <div class="text-white/85 mt-2">Niños y niñas de 3º y 4º de primaria.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🎲</div>
+              <div class="font-extrabold text-xl text-purple-200">Aprender con retos</div>
+              <div class="text-white/85 mt-2">Narrativa, manipulación, experimentación y trabajo en equipo.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">♿</div>
+              <div class="font-extrabold text-xl text-green-200">NEAE</div>
+              <div class="text-white/85 mt-2">Consignas visuales, roles flexibles, tiempos extendidos y andamiaje paso a paso.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">🧩 Segmentación</span>
+            <span class="pill">🧠 Autorregulación</span>
+            <span class="pill">🧰 Material manipulativo</span>
+            <span class="pill">📌 Guías pictográficas</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 8 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 9 / 15 · METODOLOGÍA (CICLO)
+    ========================== -->
+    <section id="step-9" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🔁</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Metodología
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Misiones auténticas con un ciclo iterativo para construir soluciones, validarlas y mejorarlas.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-4 gap-5">
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">🧱</div>
+              <div class="font-extrabold text-xl mt-2 text-yellow-200">Construir</div>
+              <div class="text-white/80 mt-2 text-sm">Prototipo RoverBot</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">🧩</div>
+              <div class="font-extrabold text-xl mt-2 text-cyan-200">Programar</div>
+              <div class="text-white/80 mt-2 text-sm">Bloques, secuencias, control</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">🧪</div>
+              <div class="font-extrabold text-xl mt-2 text-purple-200">Probar</div>
+              <div class="text-white/80 mt-2 text-sm">Medir, registrar, observar</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7 text-center">
+              <div class="text-5xl">🔧</div>
+              <div class="font-extrabold text-xl mt-2 text-green-200">Mejorar</div>
+              <div class="text-white/80 mt-2 text-sm">Ajustes y depuración</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">🤝 Equipos 2–3</span>
+            <span class="pill">🧭 Roles</span>
+            <span class="pill">📁 Portafolio</span>
+            <span class="pill">🧠 Reflexión</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 9 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 10 / 15 · SECUENCIA DE MISIONES
+    ========================== -->
+    <section id="step-10" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🧭</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Secuencia de misiones
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Progresión desde ensamblaje y calibración hasta retos con control, sensor y colaboración.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🌌</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Narrativa espacial</div>
+              <div class="text-white/85 mt-2">
+                Misiones contextualizadas que mantienen motivación y sentido de propósito.
+              </div>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span class="pill">🎮 Gamificación</span>
+                <span class="pill">🏅 Insignias</span>
+                <span class="pill">🔓 Desbloqueo</span>
+              </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">📈</div>
+              <div class="font-extrabold text-2xl text-purple-200">Complejidad creciente</div>
+              <div class="text-white/85 mt-2">
+                Del control de variables (distancia/tiempo) a condicionales, bucles, sensor y tareas de equipo.
+              </div>
+              <div class="mt-5 flex flex-wrap gap-2">
+                <span class="pill">📏 Medición</span>
+                <span class="pill">📊 Registro</span>
+                <span class="pill">🧠 Depuración</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 grid md:grid-cols-4 gap-4 text-center">
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">🛠️</div>
+              <div class="font-extrabold text-yellow-200">Misión 0</div>
+              <div class="text-white/80 text-sm mt-1">Ensamblaje + conexión</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">🏔️</div>
+              <div class="font-extrabold text-orange-200">Misión 1</div>
+              <div class="text-white/80 text-sm mt-1">Calibración / pruebas</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">🌀</div>
+              <div class="font-extrabold text-blue-200">Misión 2</div>
+              <div class="text-white/80 text-sm mt-1">Conexión / avance guiado</div>
+            </div>
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
+              <div class="text-5xl mb-2">🕳️</div>
+              <div class="font-extrabold text-fuchsia-200">Misión 3</div>
+              <div class="text-white/80 text-sm mt-1">Sensor / condición</div>
+            </div>
+          </div>
+
+          <div class="mt-4 grid md:grid-cols-1 gap-4 text-center">
+            <div class="glass-card rounded-2xl p-6 hover:scale-[1.01] transition">
+              <div class="text-5xl mb-2">🚛</div>
+              <div class="font-extrabold text-green-200">Misión 4</div>
+              <div class="text-white/80 text-sm mt-1">Transferencia / colaboración</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 10 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 11 / 15 · PRODUCTO (6 TARJETAS + MODAL IFRAME)
+    ========================== -->
+    <section id="step-11" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-8">
+          <div class="text-7xl mb-4 animate-float">🧪</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Producto tecnopedagógico (recurso digital)
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Se muestra el entorno gamificado: selecciona una tarjeta para abrir la sección correspondiente (se ejecuta en una pantalla superpuesta).
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 1 · Misión 0 (Ensamblaje)', 'https://maihoyos.github.io/exploradores/mision0.html')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-cyan-200">Tarjeta 1 · mision0.html</div>
+            <div class="mt-4 text-2xl font-extrabold">🛠️ Ensamblaje</div>
+            <div class="mt-2 text-white/80">Inicio + instrucciones + conexión.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 2 · Índice (Panel de misiones)', 'https://maihoyos.github.io/exploradores/index.html')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-purple-200">Tarjeta 2 · index.html</div>
+            <div class="mt-4 text-2xl font-extrabold">🧭 Panel</div>
+            <div class="mt-2 text-white/80">Navegación + progreso de misiones.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 3 · Misión 1', 'https://maihoyos.github.io/exploradores/mision1.html?reset=1770309136702')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-emerald-200">Tarjeta 3 · mision1</div>
+            <div class="mt-4 text-2xl font-extrabold">🏔️ Vectonia</div>
+            <div class="mt-2 text-white/80">Calibración y primeros retos.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 4 · Misión 2', 'https://maihoyos.github.io/exploradores/mision2.html?reset=1770309173677')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-blue-200">Tarjeta 4 · mision2</div>
+            <div class="mt-4 text-2xl font-extrabold">🌀 Zycurva</div>
+            <div class="mt-2 text-white/80">Avance guiado por retos.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 5 · Misión 3', 'https://maihoyos.github.io/exploradores/mision3.html?reset=1770309206648')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-fuchsia-200">Tarjeta 5 · mision3</div>
+            <div class="mt-4 text-2xl font-extrabold">🕳️ Sensorium</div>
+            <div class="mt-2 text-white/80">Condición + control con sensor.</div>
+          </button>
+
+          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 6 · Misión 4', 'https://maihoyos.github.io/exploradores/mision4.html?reset=1770309233412')">
+            <div class="float-orb one"></div><div class="float-orb two"></div>
+            <div class="tag text-yellow-200">Tarjeta 6 · mision4</div>
+            <div class="mt-4 text-2xl font-extrabold">🚛 Transferencia</div>
+            <div class="mt-2 text-white/80">Misión integradora colaborativa.</div>
           </button>
         </div>
-      </div>
-    </div>
 
-    <!-- STEP 1: PANTALLA 1 (panel futurista con tarjetas flotantes) -->
-    <div id="step-1" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="glass-card rounded-3xl p-6 md:p-8 relative overflow-hidden">
-          <div class="holo-grid" aria-hidden="true"></div>
-
-          <div class="relative z-10 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div class="flex flex-wrap items-center gap-2 mb-3">
-                <span class="chip px-3 py-1 text-xs text-white/80">Pantalla 1</span>
-                <span class="chip px-3 py-1 text-xs text-white/80">Contexto & problema educativo</span>
-              </div>
-              <h2 class="text-3xl md:text-4xl font-extrabold leading-tight">
-                Panel de diagnóstico
-              </h2>
-              <p class="text-white/75 mt-2 max-w-2xl">
-                Haz clic en una tarjeta para desplegar la información en pantalla completa.
-              </p>
-            </div>
-
-            <div class="flex gap-3">
-              <button onclick="previousStep()"
-                class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium">
-                ← Atrás
-              </button>
-              <button onclick="nextStep()"
-                class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 transition font-bold btn-3d btn-premium">
-                Siguiente →
-              </button>
-            </div>
-          </div>
-
-          <!-- TARJETAS -->
-          <div class="relative z-10 mt-8 grid md:grid-cols-12 gap-6">
-            <!-- Núcleo -->
-            <div class="md:col-span-5">
-              <div class="glass-card rounded-3xl p-6 animate-float">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🚀</div>
-                    <div>
-                      <div class="text-sm text-white/70">Núcleo</div>
-                      <div class="text-xl font-bold">Propuesta (Zython)</div>
-                    </div>
-                  </div>
-                  <span class="chip px-3 py-1 text-xs text-white/80">Resumen</span>
-                </div>
-
-                <p class="text-white/85 mt-4 leading-relaxed">
-                  Unidad didáctica gamificada con robótica educativa para promover pensamiento matemático y computacional en 4.º de Primaria.
-                </p>
-
-                <div class="mt-5 flex flex-wrap gap-2">
-                  <span class="chip px-3 py-1 text-xs text-white/80">Robótica</span>
-                  <span class="chip px-3 py-1 text-xs text-white/80">Gamificación</span>
-                  <span class="chip px-3 py-1 text-xs text-white/80">PM</span>
-                  <span class="chip px-3 py-1 text-xs text-white/80">PC</span>
-                </div>
-
-                <button
-                  class="mt-6 w-full px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-                  type="button"
-                  onclick="openCardModal('core')">
-                  Abrir panel ✨
-                </button>
-              </div>
-            </div>
-
-            <!-- Dimensiones -->
-            <div class="md:col-span-7">
-              <div class="grid sm:grid-cols-2 gap-6">
-                <button class="glass-card rounded-3xl p-6 text-left animate-float2 hover:bg-white/10 transition"
-                  type="button" onclick="openCardModal('math')">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🧠</div>
-                      <div>
-                        <div class="text-sm text-white/70">Dimensión</div>
-                        <div class="text-lg font-bold">Pensamiento matemático</div>
-                      </div>
-                    </div>
-                    <span class="text-white/60">↗</span>
-                  </div>
-                  <p class="mt-3 text-white/80">
-                    Dificultades y necesidad de experiencias concretas y contextualizadas.
-                  </p>
-                </button>
-
-                <button class="glass-card rounded-3xl p-6 text-left animate-float hover:bg-white/10 transition"
-                  type="button" onclick="openCardModal('ct')">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">💻</div>
-                      <div>
-                        <div class="text-sm text-white/70">Dimensión</div>
-                        <div class="text-lg font-bold">Pensamiento computacional</div>
-                      </div>
-                    </div>
-                    <span class="text-white/60">↗</span>
-                  </div>
-                  <p class="mt-3 text-white/80">
-                    Secuencias, condicionales, bucles y depuración integrados con matemáticas.
-                  </p>
-                </button>
-
-                <button class="glass-card rounded-3xl p-6 text-left animate-float hover:bg-white/10 transition"
-                  type="button" onclick="openCardModal('motivation')">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🔥</div>
-                      <div>
-                        <div class="text-sm text-white/70">Dimensión</div>
-                        <div class="text-lg font-bold">Motivación</div>
-                      </div>
-                    </div>
-                    <span class="text-white/60">↗</span>
-                  </div>
-                  <p class="mt-3 text-white/80">
-                    Gamificación y retos para sostener el compromiso del alumnado.
-                  </p>
-                </button>
-
-                <button class="glass-card rounded-3xl p-6 text-left animate-float2 hover:bg-white/10 transition"
-                  type="button" onclick="openCardModal('collab')">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                      <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🤝</div>
-                      <div>
-                        <div class="text-sm text-white/70">Dimensión</div>
-                        <div class="text-lg font-bold">Colaboración</div>
-                      </div>
-                    </div>
-                    <span class="text-white/60">↗</span>
-                  </div>
-                  <p class="mt-3 text-white/80">
-                    Organización del trabajo en equipo y roles durante los retos.
-                  </p>
-                </button>
-              </div>
-
-              <div class="mt-6 glass-card rounded-3xl p-6">
-                <div class="flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">🧩</div>
-                    <div>
-                      <div class="text-sm text-white/70">Dimensión</div>
-                      <div class="text-lg font-bold">Robótica educativa</div>
-                    </div>
-                  </div>
-                  <button
-                    class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-                    type="button"
-                    onclick="openCardModal('robotics')">
-                    Abrir ↗
-                  </button>
-                </div>
-                <p class="mt-3 text-white/80">
-                  Medio tecnopedagógico para conectar lo abstracto con lo concreto y favorecer aprendizaje activo.
-                </p>
-              </div>
-
-              <p class="mt-4 text-xs text-white/55">
-                ⚙️ Luego reemplazamos los textos por frases EXACTAS de tu TFM (sin inventar).
-              </p>
-            </div>
+        <div class="mt-8 text-center">
+          <div class="flex justify-center gap-3 flex-wrap">
+            <span class="pill">🎮 Gamificación</span>
+            <span class="pill">🏅 Insignias</span>
+            <span class="pill">🧩 Andamiaje</span>
+            <span class="pill">📁 Evidencias</span>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- STEPS 2 a 15: placeholders (espacios reservados) -->
-    <div id="step-2"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 2</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-3"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 3</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-4"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 4</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-5"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 5</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-6"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 6</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-7"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 7</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-8"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 8</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-9"  class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 9</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-10" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 10</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-11" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 11</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-12" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 12</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-13" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 13</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-14" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 14</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
-    <div id="step-15" class="step-container min-h-screen flex-col items-center justify-center p-6 hidden"><div class="max-w-4xl text-center glass-card p-10 rounded-3xl"><h2 class="text-4xl font-bold">Pantalla 15</h2><p class="text-white/70 mt-3">Espacio reservado</p><div class="mt-8 flex gap-3 justify-center"><button onclick="previousStep()" class="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 font-bold btn-premium">← Atrás</button><button onclick="nextStep()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 font-bold btn-3d btn-premium">Siguiente →</button></div></div></div>
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 11 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 12 / 15 · PRUEBA PILOTO
+    ========================== -->
+    <section id="step-12" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🧪</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Prueba piloto y ajustes
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Pilotaje exploratorio del entorno gamificado para analizar claridad, coherencia y funcionalidad; ajustes derivados antes de una implementación a mayor escala.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🔍</div>
+              <div class="font-extrabold text-xl text-cyan-200">Qué se analizó</div>
+              <div class="text-white/85 mt-2">Claridad, coherencia y funcionalidad del recurso.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🧭</div>
+              <div class="font-extrabold text-xl text-purple-200">Cómo se usó</div>
+              <div class="text-white/85 mt-2">Recorrido de misiones, andamiajes y navegación.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🔧</div>
+              <div class="font-extrabold text-xl text-green-200">Qué se ajustó</div>
+              <div class="text-white/85 mt-2">Mejoras para facilitar comprensión y usabilidad.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">✅ Listo para implementación futura</span>
+            <span class="pill">♻️ Iteración y mejora</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 12 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 13 / 15 · EVALUACIÓN (APRENDIZAJE)
+    ========================== -->
+    <section id="step-13" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">📊</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Evaluación del aprendizaje
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Evaluación formativa con evidencias de proceso y producto (portafolio).
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">📋</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Formativa</div>
+              <div class="text-white/85 mt-2">
+                Seguimiento durante las misiones: observación, retroalimentación y mejora.
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="pill">🧠 Depuración</span>
+                <span class="pill">📏 Medición</span>
+                <span class="pill">🧾 Registro</span>
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">📁</div>
+              <div class="font-extrabold text-2xl text-purple-200">Portafolio</div>
+              <div class="text-white/85 mt-2">
+                Artefactos: código, prototipos, tablas/gráficas, capturas y narrativas reflexivas.
+              </div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="pill">🧩 Código</span>
+                <span class="pill">📊 Datos</span>
+                <span class="pill">✍️ Reflexión</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <span class="pill">🎯 Criterios explícitos</span>
+            <span class="pill">🧠 Metacognición</span>
+            <span class="pill">🤝 Evidencias de coautoría</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 13 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 14 / 15 · CONCLUSIONES
+    ========================== -->
+    <section id="step-14" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">✅</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Conclusiones
+          </h2>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🤖</div>
+              <div class="font-extrabold text-2xl text-cyan-200">Aporte didáctico</div>
+              <div class="text-white/85 mt-2">
+                Propuesta transferible y escalable que integra robótica y gamificación para potenciar PC y PM en primaria.
+              </div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🧠</div>
+              <div class="font-extrabold text-2xl text-purple-200">Aprendizajes</div>
+              <div class="text-white/85 mt-2">
+                Fortalece resolución de problemas, colaboración, registro de evidencias y ciclos de mejora.
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <span class="pill">📐 Currículo</span>
+            <span class="pill">🧩 Programación por bloques</span>
+            <span class="pill">🧪 Ciclo iterativo</span>
+            <span class="pill">🎮 Motivación</span>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 14 / 15</div>
+      </div>
+    </section>
+
+    <!-- =========================
+         STEP 15 / 15 · LIMITACIONES + PROSPECTIVA
+    ========================== -->
+    <section id="step-15" class="step-container min-h-screen hidden items-center justify-center p-6">
+      <div class="max-w-6xl w-full animate-fade-in-scale">
+        <div class="text-center mb-6">
+          <div class="text-7xl mb-3 animate-float">🔭</div>
+          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
+            Limitaciones y prospectiva
+          </h2>
+          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
+            Cierre con mirada de futuro: implementación ampliada y evaluación en contexto escolar formal.
+          </p>
+        </div>
+
+        <div class="glass-card p-7 md:p-10 rounded-3xl">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">⏳</div>
+              <div class="font-extrabold text-xl text-yellow-200">Limitación</div>
+              <div class="text-white/85 mt-2">Pilotaje exploratorio y necesidad de implementación a mayor escala.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">🏫</div>
+              <div class="font-extrabold text-xl text-cyan-200">Futuro 1</div>
+              <div class="text-white/85 mt-2">Aplicación en aula formal con grupos completos y continuidad.</div>
+            </div>
+            <div class="glass-card rounded-2xl p-7">
+              <div class="text-4xl mb-2">📈</div>
+              <div class="font-extrabold text-xl text-purple-200">Futuro 2</div>
+              <div class="text-white/85 mt-2">Evaluación longitudinal: progreso en PC, PM y colaboración.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 text-center">
+            <div class="glass-card rounded-2xl p-6 inline-block">
+              <div class="text-2xl font-extrabold text-green-200">✨ Gracias</div>
+              <div class="text-white/80 mt-1">Quedo atenta a sus preguntas.</div>
+            </div>
+          </div>
+
+          <div class="mt-8 flex justify-center gap-3 flex-wrap">
+            <button onclick="goToStep(1)"
+              class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">
+              ↺ Volver al inicio
+            </button>
+            <button onclick="goToStep(11)"
+              class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">
+              🧪 Volver al producto
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-between">
+          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
+          <button onclick="goToStep(1)" class="px-8 py-4 bg-green-600 hover:bg-green-700 rounded-2xl font-bold btn-3d btn-premium">Finalizar ✔</button>
+        </div>
+
+        <div class="mt-4 step-counter text-center">Diapositiva 15 / 15</div>
+      </div>
+    </section>
 
   </div>
 
-  <!-- MODAL pantalla grande (abre al clic en tarjeta) -->
-  <div id="card-modal" aria-hidden="true">
-    <div id="card-modal-backdrop"></div>
+  <!-- Modal Producto (iframe) -->
+  <div id="product-modal" aria-hidden="true">
+    <div id="product-modal-backdrop"></div>
 
-    <div class="modal-shell glass-card">
-      <div class="holo-grid" aria-hidden="true"></div>
+    <div class="product-modal-panel">
+      <div class="product-modal-topbar">
+        <div class="product-modal-title" id="product-modal-title">Producto</div>
 
-      <div class="relative z-10 flex items-start justify-between gap-4 px-5 py-4 border-b border-white/10">
-        <div>
-          <div class="text-xs text-white/70">Detalle</div>
-          <h3 id="card-modal-title" class="text-2xl md:text-3xl font-extrabold">—</h3>
-        </div>
+        <div class="product-modal-actions">
+          <a id="product-modal-opennew"
+             class="product-modal-btn btn-premium"
+             href="#"
+             target="_blank"
+             rel="noopener noreferrer"
+             title="Abrir en una pestaña nueva">
+            ↗ Abrir
+          </a>
 
-        <button id="card-modal-close"
-          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-          type="button"
-          aria-label="Cerrar (ESC)">
-          ✕
-        </button>
-      </div>
-
-      <div class="relative z-10 p-5 md:p-7 grid md:grid-cols-12 gap-6">
-        <div class="md:col-span-7 glass-card rounded-3xl p-6">
-          <div class="flex items-center gap-3 mb-3">
-            <div id="card-modal-icon" class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">✨</div>
-            <span id="card-modal-tag" class="chip px-3 py-1 text-xs text-white/80">—</span>
-          </div>
-          <p id="card-modal-text" class="text-white/90 text-lg leading-relaxed">
-            —
-          </p>
-          <p class="mt-4 text-xs text-white/60">
-            (Aquí irá texto breve y literal del TFM; tú amplías oralmente.)
-          </p>
-        </div>
-
-        <div class="md:col-span-5 glass-card rounded-3xl p-6">
-          <p class="text-sm text-white/70 font-bold mb-3">Puntos clave (para ti)</p>
-          <ul id="card-modal-bullets" class="space-y-2 text-white/85"></ul>
-
-          <div class="mt-6 flex gap-3">
-            <button id="card-modal-prev"
-              class="flex-1 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-              type="button">
-              ← Anterior
-            </button>
-            <button id="card-modal-next"
-              class="flex-1 px-4 py-3 rounded-2xl bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 transition font-bold btn-3d btn-premium"
-              type="button">
-              Siguiente →
-            </button>
-          </div>
+          <button id="product-modal-close" class="product-modal-btn btn-premium" aria-label="Cerrar (ESC)">
+            ✕
+          </button>
         </div>
       </div>
 
-      <div class="relative z-10 px-5 pb-5">
-        <p class="text-xs text-white/55 text-center">
-          Tip: Mantén esto corto. La pantalla guía; tu voz argumenta.
-        </p>
-      </div>
+      <iframe id="product-modal-iframe" class="product-iframe" title="Producto Zython" loading="lazy"></iframe>
     </div>
   </div>
 
   <script>
     'use strict';
 
-    /* ======= Estrellas ======= */
+    // ====== ESTRELLAS ======
     function createStars() {
       const starsContainer = document.getElementById('stars');
       if (!starsContainer) return;
@@ -517,213 +1192,135 @@
       if (stars) stars.style.transform = `translate(${x}px, ${y}px)`;
     });
 
-    /* ======= Steps ======= */
-    let currentStep = 0;
-    const totalSteps = 15;
+    // ====== NAVEGACIÓN STEPS ======
+    const TOTAL_STEPS = 15;
+    let currentStep = 1;
+
+    const subtitleMap = {
+      1: 'Portada',
+      2: 'Problema educativo',
+      3: 'Propuesta de innovación',
+      4: 'Objetivo general',
+      5: 'Objetivos específicos',
+      6: 'Fundamentos del proyecto',
+      7: 'Contexto de implementación',
+      8: 'Destinatarios e inclusión',
+      9: 'Metodología',
+      10: 'Secuencia de misiones',
+      11: 'Producto tecnopedagógico',
+      12: 'Prueba piloto y ajustes',
+      13: 'Evaluación del aprendizaje',
+      14: 'Conclusiones',
+      15: 'Limitaciones y prospectiva'
+    };
+
+    function showStep(n) {
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (!el) continue;
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+      const cur = document.getElementById(`step-${n}`);
+      if (cur) {
+        cur.classList.remove('hidden');
+        cur.classList.add('flex');
+      }
+      currentStep = n;
+      updateProgress();
+      updateHeader();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToStep(n) {
+      const target = Math.min(Math.max(n, 1), TOTAL_STEPS);
+      showStep(target);
+    }
+
+    function nextStep() {
+      if (currentStep < TOTAL_STEPS) showStep(currentStep + 1);
+    }
+
+    function prevStep() {
+      if (currentStep > 1) showStep(currentStep - 1);
+    }
 
     function updateProgress() {
-      const pct = Math.round((currentStep / totalSteps) * 100);
+      const pct = Math.round((currentStep - 1) / (TOTAL_STEPS - 1) * 100);
       const bar = document.getElementById('progress-bar');
       const text = document.getElementById('progress-text');
       if (bar) bar.style.width = pct + '%';
       if (text) text.textContent = pct + '%';
     }
 
-    function updateHeaderSubtitle(stepNumber){
-      const subtitle = document.getElementById('header-subtitle');
-      if(!subtitle) return;
-      subtitle.textContent = (stepNumber === 0) ? 'Portada' : `Pantalla ${stepNumber}`;
+    function updateHeader() {
+      const sub = document.getElementById('header-subtitle');
+      if (!sub) return;
+      const title = subtitleMap[currentStep] || 'En progreso';
+      sub.textContent = `Diapositiva ${currentStep} · ${title}`;
     }
 
-    function showStep(stepNumber) {
-      for (let i = 0; i <= totalSteps; i++) {
-        const step = document.getElementById(`step-${i}`);
-        if (!step) continue;
-        step.classList.add('hidden');
-        step.classList.remove('flex');
-      }
-      const el = document.getElementById(`step-${stepNumber}`);
-      if (el) {
-        el.classList.remove('hidden');
-        el.classList.add('flex');
-      }
-      currentStep = stepNumber;
-      updateProgress();
-      updateHeaderSubtitle(stepNumber);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // Atajos teclado
+    document.addEventListener('keydown', (e) => {
+      // si modal abierto, no interferir (excepto Escape lo gestiona el modal)
+      const modal = document.getElementById('product-modal');
+      const modalOpen = modal && modal.classList.contains('show');
+      if (modalOpen) return;
 
-    function nextStep() {
-      if (currentStep < totalSteps) showStep(currentStep + 1);
-    }
-    function previousStep() {
-      if (currentStep > 0) showStep(currentStep - 1);
-    }
-    function goToStep(n){
-      const clamped = Math.max(0, Math.min(totalSteps, Number(n)));
-      showStep(clamped);
-    }
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') nextStep();
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevStep();
+      if (e.key === 'Home') goToStep(1);
+      if (e.key === 'End') goToStep(TOTAL_STEPS);
+    });
 
-    /* ======= Modal pantalla grande ======= */
-    const cardModal = document.getElementById('card-modal');
-    const cardModalBackdrop = document.getElementById('card-modal-backdrop');
-    const cardModalClose = document.getElementById('card-modal-close');
+    // ====== MODAL PRODUCTO ======
+    function openProductModal(title, url) {
+      const modal = document.getElementById('product-modal');
+      const backdrop = document.getElementById('product-modal-backdrop');
+      const closeBtn = document.getElementById('product-modal-close');
+      const iframe = document.getElementById('product-modal-iframe');
+      const ttl = document.getElementById('product-modal-title');
+      const openNew = document.getElementById('product-modal-opennew');
 
-    const mTitle = document.getElementById('card-modal-title');
-    const mIcon = document.getElementById('card-modal-icon');
-    const mTag  = document.getElementById('card-modal-tag');
-    const mText = document.getElementById('card-modal-text');
-    const mBullets = document.getElementById('card-modal-bullets');
+      if (!modal || !backdrop || !closeBtn || !iframe || !ttl || !openNew) return;
 
-    const mPrev = document.getElementById('card-modal-prev');
-    const mNext = document.getElementById('card-modal-next');
+      ttl.textContent = title || 'Producto Zython';
+      iframe.src = url;
+      openNew.href = url;
 
-    const cards = [
-      {
-        id:'core',
-        title:'Propuesta (Zython)',
-        icon:'🚀',
-        tag:'Núcleo',
-        text:'[Pega aquí 1–2 frases LITERALES de tu TFM sobre el propósito y la propuesta.]',
-        bullets:[
-          '• [TFM] frase breve sobre unidad didáctica gamificada',
-          '• [TFM] frase breve sobre robótica + programación por bloques',
-          '• [TFM] frase breve sobre 4.º de Primaria'
-        ]
-      },
-      {
-        id:'math',
-        title:'Pensamiento matemático',
-        icon:'🧠',
-        tag:'Dimensión',
-        text:'[Pega aquí 1–2 frases literales del TFM sobre dificultades / necesidad / enfoque.]',
-        bullets:[
-          '• [TFM] idea clave (razonamiento / resolución de problemas)',
-          '• [TFM] idea clave (aprendizaje significativo / contextualización)'
-        ]
-      },
-      {
-        id:'ct',
-        title:'Pensamiento computacional',
-        icon:'💻',
-        tag:'Dimensión',
-        text:'[Pega aquí 1–2 frases literales del TFM sobre PC en primaria y su integración.]',
-        bullets:[
-          '• [TFM] secuenciación / condicionales / bucles / depuración',
-          '• [TFM] articulación con contenidos matemáticos'
-        ]
-      },
-      {
-        id:'motivation',
-        title:'Motivación',
-        icon:'🔥',
-        tag:'Dimensión',
-        text:'[Pega aquí 1–2 frases literales del TFM sobre motivación y gamificación.]',
-        bullets:[
-          '• [TFM] impacto en motivación/compromiso',
-          '• [TFM] sentido de retos/misiones'
-        ]
-      },
-      {
-        id:'collab',
-        title:'Colaboración',
-        icon:'🤝',
-        tag:'Dimensión',
-        text:'[Pega aquí 1–2 frases literales del TFM sobre trabajo colaborativo.]',
-        bullets:[
-          '• [TFM] roles / cooperación',
-          '• [TFM] competencia colaborativa'
-        ]
-      },
-      {
-        id:'robotics',
-        title:'Robótica educativa',
-        icon:'🧩',
-        tag:'Dimensión',
-        text:'[Pega aquí 1–2 frases literales del TFM sobre robótica como puente abstracto–concreto.]',
-        bullets:[
-          '• [TFM] “lo abstracto → concreto”',
-          '• [TFM] aprendizaje activo / observación'
-        ]
-      }
-    ];
-
-    let currentCardIdx = 0;
-
-    function renderModal(idx){
-      const c = cards[idx];
-      if(!c) return;
-
-      mTitle.textContent = c.title;
-      mTag.textContent = c.tag;
-      mIcon.textContent = c.icon;
-      mText.textContent = c.text;
-
-      mBullets.innerHTML = '';
-      (c.bullets || []).forEach(b => {
-        const li = document.createElement('li');
-        li.className = 'flex gap-2 items-start';
-        li.innerHTML = `<span class="mt-[2px] text-white/70">▸</span><span>${escapeHtml(b)}</span>`;
-        mBullets.appendChild(li);
-      });
-
-      mPrev.disabled = (idx === 0);
-      mPrev.classList.toggle('opacity-50', idx === 0);
-
-      mNext.disabled = (idx === cards.length - 1);
-      mNext.classList.toggle('opacity-50', idx === cards.length - 1);
-    }
-
-    function openCardModal(cardId){
-      const idx = cards.findIndex(x => x.id === cardId);
-      currentCardIdx = (idx >= 0) ? idx : 0;
-
-      renderModal(currentCardIdx);
-
-      cardModal.classList.add('show');
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
-      setTimeout(() => cardModalClose.focus(), 60);
+
+      closeBtn.focus();
+
+      if (!modal.dataset.bound) {
+        closeBtn.addEventListener('click', closeProductModal);
+        backdrop.addEventListener('click', closeProductModal);
+        document.addEventListener('keydown', (e) => {
+          const isOpen = modal.classList.contains('show');
+          if (!isOpen) return;
+          if (e.key === 'Escape') closeProductModal();
+        });
+        modal.dataset.bound = '1';
+      }
     }
 
-    function closeCardModal(){
-      cardModal.classList.remove('show');
+    function closeProductModal() {
+      const modal = document.getElementById('product-modal');
+      const iframe = document.getElementById('product-modal-iframe');
+      if (!modal || !iframe) return;
+
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      iframe.src = '';
       document.body.style.overflow = '';
     }
 
-    function escapeHtml(str){
-      return String(str)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
-    }
-
-    cardModalClose.addEventListener('click', closeCardModal);
-    cardModalBackdrop.addEventListener('click', closeCardModal);
-    document.addEventListener('keydown', (e) => {
-      if(e.key === 'Escape' && cardModal.classList.contains('show')) closeCardModal();
-    });
-
-    mPrev.addEventListener('click', () => {
-      if(currentCardIdx > 0){
-        currentCardIdx--;
-        renderModal(currentCardIdx);
-      }
-    });
-    mNext.addEventListener('click', () => {
-      if(currentCardIdx < cards.length - 1){
-        currentCardIdx++;
-        renderModal(currentCardIdx);
-      }
-    });
-
-    /* ======= Init ======= */
+    // ====== INIT ======
     document.addEventListener('DOMContentLoaded', () => {
       createStars();
-      showStep(0);
-      updateProgress();
-      updateHeaderSubtitle(0);
+      showStep(1);
     });
   </script>
 </body>
