@@ -1,1327 +1,1504 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Defensa TFM · Zython (15 diapositivas)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreateStars - Defensa TFM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    * { font-family: 'Fredoka', sans-serif; }
+        :root {
+            --primary: #8B5CF6;
+            --primary-light: #A78BFA;
+            --secondary: #06B6D4;
+            --dark: #0F0A1F;
+            --darker: #070412;
+            --text: #E2E8F0;
+            --text-muted: #94A3B8;
+        }
 
-    :root{
-      --card: rgba(255,255,255,.10);
-      --border: rgba(255,255,255,.18);
-      --shadow: 0 18px 60px rgba(0,0,0,.45);
-      --radius: 24px;
-      --accent: #60a5fa;  /* blue-400 */
-      --accent2:#a78bfa;  /* purple-400 */
-    }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1a0a2e 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-    :focus-visible{
-      outline: 3px solid rgba(96,165,250,.8);
-      outline-offset: 3px;
-    }
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
 
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
+        /* Scanlines Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.03) 0px,
+                rgba(0, 0, 0, 0.03) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            animation: scanlineMove 8s linear infinite;
+        }
 
-    body {
-      background: linear-gradient(-45deg, #1a0b2e, #16213e, #0f3460, #533483);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      padding-top: 92px;
-    }
+        @keyframes scanlineMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-18px); }
-    }
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
 
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(147, 51, 234, 0.4); }
-      50% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.9), 0 0 90px rgba(147, 51, 234, 0.6); }
-    }
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(139, 92, 246, 0.6);
+            border-radius: 50%;
+            animation: floatUp 15s linear infinite;
+        }
 
-    @keyframes fadeInScale {
-      from { opacity: 0; transform: translateY(30px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(1);
+                opacity: 0;
+            }
+        }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Stars Background */
+        .stars-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
 
-    @keyframes titleGlow {
-      0%, 100% {
-        text-shadow: 0 0 20px rgba(59, 130, 246, 0.8),
-                     0 0 40px rgba(147, 51, 234, 0.6),
-                     0 0 60px rgba(236, 72, 153, 0.4);
-      }
-      50% {
-        text-shadow: 0 0 30px rgba(59, 130, 246, 1),
-                     0 0 60px rgba(147, 51, 234, 0.8),
-                     0 0 90px rgba(236, 72, 153, 0.6);
-      }
-    }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite;
+        }
 
-    .title-hero { animation: titleGlow 3s ease-in-out infinite; }
-    .animate-float { animation: float 4s ease-in-out infinite; }
-    .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
-    .animate-fade-in-scale { animation: fadeInScale 0.8s ease-out; }
-    .animate-fade-in { animation: fadeIn 1.2s ease-out; }
+        @keyframes twinkle {
+            0%, 100% { opacity: var(--opacity); transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
 
-    .stars {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      transition: transform .2s ease;
-    }
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      animation: twinkle 3s infinite;
-      box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
+        /* Slide Container */
+        .slide-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            z-index: 10;
+        }
 
-    .glass-card {
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-    }
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            filter: blur(10px);
+        }
 
-    .btn-3d {
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-    .btn-3d:hover { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3), 0 15px 30px rgba(0, 0, 0, 0.3); }
-    .btn-3d:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3), 0 5px 10px rgba(0, 0, 0, 0.2); }
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-    .btn-premium { position: relative; overflow: hidden; }
-    .btn-premium::after{
-      content:"";
-      position:absolute;
-      inset:-120%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
-      transform: rotate(25deg) translateX(-40%);
-      transition: transform .6s ease;
-      pointer-events: none;
-    }
-    .btn-premium:hover::after{ transform: rotate(25deg) translateX(40%); }
+        .slide.exit-next {
+            animation: slideOutNext 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-    .text-glow { text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+        .slide.exit-prev {
+            animation: slideOutPrev 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-    /* "Burbujas" limpias */
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .55rem;
-      padding: .55rem .9rem;
-      border-radius: 9999px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.16);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 12px 30px rgba(0,0,0,.25);
-      transition: transform .25s ease, background .25s ease;
-    }
-    .pill:hover{ transform: translateY(-2px); background: rgba(255,255,255,.14); }
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0);
+            }
+        }
 
-    .step-counter {
-      font-weight: 800;
-      letter-spacing: .5px;
-      color: rgba(255,255,255,.78);
-    }
+        @keyframes slideOutNext {
+            0% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-100px) scale(0.9);
+                filter: blur(10px);
+            }
+        }
 
-    /* Tarjetas flotantes producto */
-    .float-card {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 22px;
-      box-shadow: 0 18px 60px rgba(0,0,0,.45);
-      backdrop-filter: blur(18px);
-      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .float-card::before{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      background: radial-gradient(circle at 30% 20%, rgba(96,165,250,.35), transparent 55%),
-                  radial-gradient(circle at 80% 70%, rgba(167,139,250,.28), transparent 55%);
-      opacity:.65;
-      pointer-events:none;
-    }
-    .float-card:hover{
-      transform: translateY(-8px) scale(1.02);
-      border-color: rgba(255,255,255,.28);
-      box-shadow: 0 22px 80px rgba(0,0,0,.55);
-    }
-    .float-card .tag{
-      display:inline-flex;
-      align-items:center;
-      gap:.5rem;
-      font-weight:700;
-      padding:.35rem .7rem;
-      border-radius:9999px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.14);
-    }
-    .float-orb{
-      position:absolute;
-      width: 140px; height: 140px;
-      border-radius: 9999px;
-      opacity:.9;
-      pointer-events:none;
-      mix-blend-mode: screen;
-      animation: float 5s ease-in-out infinite;
-    }
-    .float-orb.one{ right:-40px; top:-40px; background: radial-gradient(circle, rgba(96,165,250,.45), transparent 65%); }
-    .float-orb.two{ left:-45px; bottom:-45px; background: radial-gradient(circle, rgba(167,139,250,.45), transparent 65%); animation-duration: 6.2s; }
+        @keyframes slideOutPrev {
+            0% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(100px) scale(0.9);
+                filter: blur(10px);
+            }
+        }
 
-    /* Modal del producto (iframe) */
-    #product-modal{
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    #product-modal.show{ display:flex; }
-    #product-modal-backdrop{
-      position:absolute;
-      inset:0;
-      background: rgba(0,0,0,.72);
-      backdrop-filter: blur(10px);
-    }
-    .product-modal-panel{
-      position: relative;
-      z-index: 2;
-      width: min(1200px, 96vw);
-      height: min(720px, 86vh);
-      border-radius: 26px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.16);
-      box-shadow: 0 25px 80px rgba(0,0,0,.65);
-      background: rgba(255,255,255,.06);
-      backdrop-filter: blur(16px);
-    }
-    .product-modal-topbar{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: .75rem;
-      padding: .75rem .9rem;
-      background: rgba(255,255,255,.06);
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .product-modal-title{
-      font-weight: 800;
-      color: rgba(255,255,255,.92);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .product-modal-actions{
-      display:flex;
-      align-items:center;
-      gap: .5rem;
-    }
-    .product-modal-btn{
-      padding: .55rem .8rem;
-      border-radius: 14px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.14);
-      font-weight: 800;
-      transition: .2s ease;
-    }
-    .product-modal-btn:hover{ background: rgba(255,255,255,.18); }
-    .product-iframe{
-      width: 100%;
-      height: calc(100% - 54px);
-      border: 0;
-      background: rgba(0,0,0,.2);
-    }
-    @media (max-width: 768px){
-      .product-modal-panel{ height: min(720px, 90vh); }
-    }
+        /* Transition Grid Overlay */
+        .transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
+            background: 
+                linear-gradient(90deg, transparent 49%, rgba(139, 92, 246, 0.1) 50%, transparent 51%),
+                linear-gradient(0deg, transparent 49%, rgba(139, 92, 246, 0.1) 50%, transparent 51%);
+            background-size: 50px 50px;
+        }
 
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      * { animation: none !important; transition: none !important; }
-    }
-  </style>
+        .transition-overlay.active-next {
+            animation: gridSlideNext 0.6s ease-out;
+        }
+
+        .transition-overlay.active-prev {
+            animation: gridSlidePrev 0.6s ease-out;
+        }
+
+        @keyframes gridSlideNext {
+            0% {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        @keyframes gridSlidePrev {
+            0% {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(7, 4, 18, 0.9) 0%, transparent 100%);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            animation: hologramPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes hologramPulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 60px rgba(6, 182, 212, 0.4);
+            }
+        }
+
+        .sound-btn {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .sound-btn:hover {
+            background: rgba(139, 92, 246, 0.3);
+            border-color: var(--primary);
+        }
+
+        .sound-btn.active {
+            background: rgba(139, 92, 246, 0.4);
+            border-color: var(--primary);
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 100;
+            background: rgba(15, 10, 31, 0.8);
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:disabled:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: none;
+            box-shadow: none;
+        }
+
+        .slide-counter {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progress-dot.active {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            transform: scale(1.3);
+        }
+
+        .progress-dot:hover:not(.active) {
+            background: rgba(139, 92, 246, 0.5);
+        }
+
+        /* Slide Content Styles */
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title-main {
+            font-size: 4.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text) 0%, var(--primary-light) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1.5rem;
+            position: relative;
+            animation: neonGlow 3s ease-in-out infinite;
+        }
+
+        .title-main:hover {
+            animation: glitchText 0.3s ease-in-out;
+        }
+
+        @keyframes neonGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.8)) drop-shadow(0 0 60px rgba(6, 182, 212, 0.4));
+            }
+        }
+
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .description {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: rgba(15, 10, 31, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: left;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            animation: hologramPulse 3s ease-in-out infinite;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* List Styles */
+        .feature-list {
+            list-style: none;
+            text-align: left;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-list li:hover {
+            padding-left: 1rem;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 8px;
+        }
+
+        .feature-list li::before {
+            content: '◆';
+            color: var(--primary);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Author Info */
+        .author-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .author-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            animation: hologramPulse 2s ease-in-out infinite;
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+            z-index: 100;
+        }
+
+        kbd {
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.7rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 700px;
+            margin: 2rem auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+        }
+
+        .timeline-item {
+            padding-left: 2rem;
+            padding-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        .timeline-item h4 {
+            color: var(--primary-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* CTA Button */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            text-decoration: none;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-btn:hover::before {
+            left: 100%;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Two columns */
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            text-align: left;
+            align-items: center;
+        }
+
+        /* Tech stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .tech-badge {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            background: rgba(139, 92, 246, 0.3);
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title-main {
+                font-size: 2.5rem;
+            }
+            .title {
+                font-size: 2rem;
+            }
+            .two-cols {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
+<body>
+    <!-- Scanlines -->
+    <div class="scanlines"></div>
 
-<body class="min-h-screen text-white overflow-x-hidden">
-  <div class="stars" id="stars"></div>
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
 
-  <!-- Header fijo tipo app -->
-  <header class="fixed top-0 left-0 right-0 z-50 px-4 py-3">
-    <div class="max-w-6xl mx-auto glass-card rounded-2xl px-5 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-2xl">🪐</div>
-        <div>
-          <div class="font-bold leading-none">Defensa · Zython</div>
-          <div id="header-subtitle" class="text-xs text-white/70">Diapositiva 1 · Portada</div>
+    <!-- Stars Background -->
+    <div class="stars-container" id="stars"></div>
+
+    <!-- Transition Overlay -->
+    <div class="transition-overlay" id="transitionOverlay"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">✦</div>
+            <span>CreateStars</span>
         </div>
-      </div>
-
-      <div class="hidden md:flex items-center gap-3 w-[360px]">
-        <div class="text-xs text-white/70">Progreso</div>
-        <div class="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
-          <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-400 to-purple-500 w-[0%]"></div>
-        </div>
-        <div id="progress-text" class="text-xs text-white/70 w-12 text-right">0%</div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button onclick="prevStep()"
-          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-          title="Anterior (←)">
-          ←
+        <button class="sound-btn" id="soundBtn" onclick="toggleSound()">
+            <span id="soundIcon">🔇</span>
+            <span id="soundText">Activar Sonido</span>
         </button>
-        <button onclick="nextStep()"
-          class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold btn-premium"
-          title="Siguiente (→)">
-          →
+    </header>
+
+    <!-- Slides Container -->
+    <div class="slide-container">
+        
+        <!-- Slide 1: Portada -->
+        <div class="slide active" data-slide="1">
+            <div class="slide-content">
+                <h1 class="title-main">CreateStars</h1>
+                <p class="subtitle">Plataforma de Financiación Colectiva para Emprendimientos Espaciales</p>
+                <p class="description">
+                    Trabajo de Fin de Máster<br>
+                    Máster en Ingeniería del Software y Sistemas Informáticos
+                </p>
+                <div class="author-info">
+                    <div class="author-avatar">👨‍🚀</div>
+                    <div>
+                        <strong>Autor:</strong> Tu Nombre<br>
+                        <strong>Director:</strong> Nombre del Director<br>
+                        <strong>Fecha:</strong> 2024
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Índice -->
+        <div class="slide" data-slide="2">
+            <div class="slide-content">
+                <h2 class="title">Contenido</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-icon">🎯</div>
+                        <h3>1. Introducción</h3>
+                        <p>Contexto y motivación del proyecto</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔍</div>
+                        <h3>2. Objetivos</h3>
+                        <p>Metas y alcance del proyecto</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🛠️</div>
+                        <h3>3. Metodología</h3>
+                        <p>Enfoque y tecnologías utilizadas</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">💡</div>
+                        <h3>4. Desarrollo</h3>
+                        <p>Implementación de la solución</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📊</div>
+                        <h3>5. Resultados</h3>
+                        <p>Análisis y métricas obtenidas</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <h3>6. Conclusiones</h3>
+                        <p>Reflexiones y trabajo futuro</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Introducción -->
+        <div class="slide" data-slide="3">
+            <div class="slide-content">
+                <h2 class="title">Introducción</h2>
+                <p class="subtitle">El auge de la industria espacial comercial</p>
+                <div class="two-cols" style="margin-top: 2rem;">
+                    <div>
+                        <p class="description" style="text-align: left;">
+                            La industria espacial está experimentando una transformación sin precedentes. 
+                            Con la entrada de empresas privadas y la reducción de costos de lanzamiento, 
+                            surgen nuevas oportunidades para emprendedores y pequeñas empresas.
+                        </p>
+                        <ul class="feature-list">
+                            <li>Mercado espacial valorado en $469 mil millones (2023)</li>
+                            <li>Crecimiento anual esperado del 7.1%</li>
+                            <li>Más de 10,000 startups espaciales activas</li>
+                        </ul>
+                    </div>
+                    <div class="stats-grid" style="grid-template-columns: 1fr;">
+                        <div class="stat-item">
+                            <div class="stat-number">$469B</div>
+                            <div class="stat-label">Mercado Global 2023</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">7.1%</div>
+                            <div class="stat-label">Crecimiento Anual</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Problema -->
+        <div class="slide" data-slide="4">
+            <div class="slide-content">
+                <h2 class="title">El Problema</h2>
+                <p class="subtitle">Barreras para emprendedores espaciales</p>
+                <div class="cards-grid" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-icon">💰</div>
+                        <h3>Altos costos de entrada</h3>
+                        <p>Los proyectos espaciales requieren inversiones significativas que excluyen a pequeños emprendedores</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🏦</div>
+                        <h3>Financiación tradicional limitada</h3>
+                        <p>Bancos y fondos tradicionales no comprenden el sector espacial y sus riesgos únicos</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🌐</div>
+                        <h3>Falta de plataformas especializadas</h3>
+                        <p>No existen plataformas de crowdfunding diseñadas específicamente para proyectos espaciales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Solución -->
+        <div class="slide" data-slide="5">
+            <div class="slide-content">
+                <h2 class="title">La Solución: CreateStars</h2>
+                <p class="subtitle">Democratizando el acceso al espacio</p>
+                <p class="description">
+                    CreateStars es una plataforma de financiación colectiva especializada en proyectos espaciales, 
+                    que conecta emprendedores con inversores apasionados por la exploración espacial.
+                </p>
+                <div class="cards-grid" style="margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-icon">🎯</div>
+                        <h3>Especialización</h3>
+                        <p>Enfocada exclusivamente en proyectos espaciales y aeroespaciales</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🤝</div>
+                        <h3>Comunidad</h3>
+                        <p>Conecta entusiastas, inversores y emprendedores del espacio</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔒</div>
+                        <h3>Seguridad</h3>
+                        <p>Sistema de verificación y protección de inversiones</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📈</div>
+                        <h3>Transparencia</h3>
+                        <p>Seguimiento en tiempo real del progreso de los proyectos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Objetivos -->
+        <div class="slide" data-slide="6">
+            <div class="slide-content">
+                <h2 class="title">Objetivos del Proyecto</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>Objetivo General</h4>
+                        <p>Desarrollar una plataforma web completa de crowdfunding especializada en el sector espacial</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Objetivo Específico 1</h4>
+                        <p>Diseñar una arquitectura escalable y segura para gestionar transacciones financieras</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Objetivo Específico 2</h4>
+                        <p>Implementar un sistema de verificación de proyectos y emprendedores</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Objetivo Específico 3</h4>
+                        <p>Crear una experiencia de usuario intuitiva y atractiva</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>Objetivo Específico 4</h4>
+                        <p>Integrar herramientas de seguimiento y comunicación entre partes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Tecnologías -->
+        <div class="slide" data-slide="7">
+            <div class="slide-content">
+                <h2 class="title">Stack Tecnológico</h2>
+                <p class="subtitle">Tecnologías modernas para una plataforma robusta</p>
+                <div class="tech-stack">
+                    <span class="tech-badge">React</span>
+                    <span class="tech-badge">Next.js</span>
+                    <span class="tech-badge">TypeScript</span>
+                    <span class="tech-badge">Node.js</span>
+                    <span class="tech-badge">PostgreSQL</span>
+                    <span class="tech-badge">Prisma</span>
+                    <span class="tech-badge">Tailwind CSS</span>
+                    <span class="tech-badge">Stripe</span>
+                    <span class="tech-badge">AWS</span>
+                    <span class="tech-badge">Docker</span>
+                </div>
+                <div class="cards-grid" style="margin-top: 3rem;">
+                    <div class="card">
+                        <div class="card-icon">⚛️</div>
+                        <h3>Frontend</h3>
+                        <p>React + Next.js para SSR y optimización SEO</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">⚙️</div>
+                        <h3>Backend</h3>
+                        <p>API REST con Node.js y validación TypeScript</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🗄️</div>
+                        <h3>Base de Datos</h3>
+                        <p>PostgreSQL con Prisma ORM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Arquitectura -->
+        <div class="slide" data-slide="8">
+            <div class="slide-content">
+                <h2 class="title">Arquitectura del Sistema</h2>
+                <p class="subtitle">Diseño modular y escalable</p>
+                <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 2rem;">
+                    <div class="card">
+                        <div class="card-icon">👤</div>
+                        <h3>Usuarios</h3>
+                        <p>Registro, autenticación, perfiles</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📦</div>
+                        <h3>Proyectos</h3>
+                        <p>Creación, gestión, categorización</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">💳</div>
+                        <h3>Pagos</h3>
+                        <p>Procesamiento seguro con Stripe</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📧</div>
+                        <h3>Notificaciones</h3>
+                        <p>Email, push, actualizaciones</p>
+                    </div>
+                </div>
+                <div class="stat-item" style="margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    <p style="color: var(--text-muted);">
+                        Arquitectura basada en microservicios con comunicación mediante API Gateway, 
+                        permitiendo escalabilidad horizontal y despliegue independiente de componentes.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Demo / Funcionalidades -->
+        <div class="slide" data-slide="9">
+            <div class="slide-content">
+                <h2 class="title">Funcionalidades Principales</h2>
+                <div class="cards-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="card">
+                        <div class="card-icon">🚀</div>
+                        <h3>Publicación de Proyectos</h3>
+                        <p>Formulario guiado para crear campañas con multimedia, hitos y recompensas personalizables</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔍</div>
+                        <h3>Exploración y Filtrado</h3>
+                        <p>Búsqueda avanzada por categoría, estado, ubicación y monto de financiación</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">💰</div>
+                        <h3>Sistema de Inversión</h3>
+                        <p>Proceso de pago seguro con múltiples métodos y protección al inversor</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📊</div>
+                        <h3>Dashboard de Seguimiento</h3>
+                        <p>Panel de control con métricas en tiempo real para creadores e inversores</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">💬</div>
+                        <h3>Sistema de Comunicación</h3>
+                        <p>Chat integrado y actualizaciones de proyectos para mantener informada a la comunidad</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">✅</div>
+                        <h3>Verificación de Proyectos</h3>
+                        <p>Proceso de validación para garantizar la legitimidad de los proyectos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Resultados -->
+        <div class="slide" data-slide="10">
+            <div class="slide-content">
+                <h2 class="title">Resultados Obtenidos</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Objetivos Cumplidos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">95+</div>
+                        <div class="stat-label">Lighthouse Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">&lt;2s</div>
+                        <div class="stat-label">Tiempo de Carga</div>
+                    </div>
+                </div>
+                <div class="cards-grid" style="margin-top: 2rem; grid-template-columns: repeat(2, 1fr);">
+                    <div class="card">
+                        <div class="card-icon">✅</div>
+                        <h3>Plataforma Funcional</h3>
+                        <p>Sistema completo desplegado y operativo con todas las funcionalidades implementadas</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🧪</div>
+                        <h3>Tests Exhaustivos</h3>
+                        <p>Cobertura de tests superior al 80% con pruebas unitarias, integración y E2E</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">📱</div>
+                        <h3>Diseño Responsive</h3>
+                        <p>Experiencia optimizada para todos los dispositivos y tamaños de pantalla</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🔐</div>
+                        <h3>Seguridad Robusta</h3>
+                        <p>Implementación de mejores prácticas de seguridad y protección de datos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Conclusiones -->
+        <div class="slide" data-slide="11">
+            <div class="slide-content">
+                <h2 class="title">Conclusiones</h2>
+                <div class="two-cols">
+                    <div>
+                        <h3 style="color: var(--primary-light); margin-bottom: 1rem;">Logros Principales</h3>
+                        <ul class="feature-list">
+                            <li>Plataforma completa y funcional desarrollada</li>
+                            <li>Arquitectura escalable y mantenible</li>
+                            <li>Experiencia de usuario optimizada</li>
+                            <li>Sistema de pagos seguro implementado</li>
+                            <li>Documentación técnica completa</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--secondary); margin-bottom: 1rem;">Trabajo Futuro</h3>
+                        <ul class="feature-list">
+                            <li>Implementación de blockchain para trazabilidad</li>
+                            <li>App móvil nativa iOS/Android</li>
+                            <li>Sistema de equity crowdfunding</li>
+                            <li>Integración con APIs de agencias espaciales</li>
+                            <li>Expansión internacional</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Gracias -->
+        <div class="slide" data-slide="12">
+            <div class="slide-content">
+                <h1 class="title-main">¡Gracias!</h1>
+                <p class="subtitle">¿Preguntas?</p>
+                <div class="author-info" style="margin-top: 3rem;">
+                    <div class="author-avatar">🚀</div>
+                    <div style="text-align: center;">
+                        <p style="font-size: 1.25rem; margin-bottom: 0.5rem;"><strong>Tu Nombre</strong></p>
+                        <p style="color: var(--text-muted);">email@universidad.edu</p>
+                        <p style="color: var(--text-muted);">linkedin.com/in/tunombre</p>
+                    </div>
+                </div>
+                <a href="#" class="cta-btn" style="margin-top: 2rem;">
+                    🌐 Ver Demo en Vivo
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation -->
+    <div class="keyboard-hint">
+        Usa <kbd>←</kbd> <kbd>→</kbd> o <kbd>Space</kbd> para navegar
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+            </svg>
         </button>
-      </div>
+        <div class="progress-dots" id="progressDots"></div>
+        <span class="slide-counter" id="slideCounter">1 / 12</span>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </button>
     </div>
-  </header>
 
-  <div class="relative z-10 min-h-screen flex flex-col">
-
-    <!-- =========================
-         STEP 1 / 15 · PORTADA
-    ========================== -->
-    <section id="step-1" class="step-container min-h-screen flex items-center justify-center p-6">
-      <div class="max-w-6xl w-full text-center animate-fade-in-scale">
-        <div class="text-8xl mb-8 animate-float">🚀</div>
-
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-5 bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent title-hero leading-tight">
-          Exploradores del Espacio<br/>Misiones con Robots
-        </h1>
-
-        <div class="glass-card p-6 md:p-8 rounded-3xl max-w-4xl mx-auto">
-          <div class="text-white/90 text-lg md:text-xl leading-relaxed">
-            <div class="font-bold text-white/95">Trabajo Fin de Máster</div>
-            <div class="mt-2 text-white/80">Máster Universitario en Tecnología Educativa y Competencias Digitales</div>
-
-            <div class="mt-6 grid md:grid-cols-2 gap-4 text-left">
-              <div class="glass-card rounded-2xl p-5">
-                <div class="text-white/70 text-sm">Autora</div>
-                <div class="font-bold text-xl">Maileen Julissa Hoyos Castellanos</div>
-                <div class="text-white/70 text-sm mt-2">Especialidad</div>
-                <div class="font-bold">Proyecto de Innovación</div>
-              </div>
-              <div class="glass-card rounded-2xl p-5">
-                <div class="text-white/70 text-sm">Dirección</div>
-                <div class="font-bold text-xl">Albert Valls Pou</div>
-                <div class="text-white/70 text-sm mt-2">Fecha</div>
-                <div class="font-bold">05/02/2026</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 flex justify-center gap-3 flex-wrap">
-            <span class="pill">🧠 Pensamiento computacional</span>
-            <span class="pill">📐 Pensamiento matemático</span>
-            <span class="pill">🤖 Robótica educativa</span>
-            <span class="pill">🎮 Entorno gamificado</span>
-          </div>
-
-          <div class="mt-8">
-            <button onclick="nextStep()"
-              class="px-12 py-5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-600 hover:from-green-600 hover:via-blue-600 hover:to-purple-700 rounded-2xl font-bold text-2xl transition-all duration-300 transform hover:scale-105 btn-3d btn-premium animate-pulse-glow">
-              Iniciar defensa ✨
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-6 step-counter">Diapositiva <span id="slide-n-1">1</span> / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 2 / 15 · PROBLEMA
-    ========================== -->
-    <section id="step-2" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🧩</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Problema educativo
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-3xl mx-auto">
-            ¿Cómo potenciar el pensamiento matemático y computacional en 4º de Primaria con experiencias activas y significativas?
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-3xl mb-2">📉</div>
-              <div class="font-extrabold text-xl text-red-200">Dificultades</div>
-              <div class="text-white/80 mt-2">
-                Obstáculos en comprensión, procedimientos, razonamiento y conexión con contexto.
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-3xl mb-2">🧠</div>
-              <div class="font-extrabold text-xl text-yellow-200">Necesidad</div>
-              <div class="text-white/80 mt-2">
-                Introducir pensamiento computacional como enfoque para resolver problemas: planificar, probar y depurar.
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-3xl mb-2">🧲</div>
-              <div class="font-extrabold text-xl text-green-200">Oportunidad</div>
-              <div class="text-white/80 mt-2">
-                Robótica educativa como puente concreto–abstracto, con retroalimentación inmediata.
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 flex justify-center gap-3 flex-wrap">
-            <span class="pill">🔁 Probar–ajustar</span>
-            <span class="pill">🧪 Experiencia tangible</span>
-            <span class="pill">🧠 Metacognición</span>
-            <span class="pill">🤝 Colaboración</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 2 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 3 / 15 · PROPUESTA
-    ========================== -->
-    <section id="step-3" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🪐</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Propuesta de innovación
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Unidad didáctica para 4º de Primaria que integra robótica educativa con LEGO® Education WeDo 2.0 (o kits similares) y un entorno web gamificado.
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-3xl mb-2">🤖</div>
-              <div class="font-extrabold text-2xl text-cyan-200">Robótica + Bloques</div>
-              <div class="text-white/85 mt-3 leading-relaxed">
-                Construcción y programación con retroalimentación inmediata para activar
-                secuenciación, condicionales, bucles y depuración.
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-3xl mb-2">🎮</div>
-              <div class="font-extrabold text-2xl text-purple-200">Entorno gamificado</div>
-              <div class="text-white/85 mt-3 leading-relaxed">
-                Misiones auténticas con narrativa espacial, progresión y evidencias en portafolio.
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-7 flex justify-center gap-3 flex-wrap">
-            <span class="pill">🧠 PC + PM</span>
-            <span class="pill">🧪 Resolver problemas</span>
-            <span class="pill">🤝 Trabajo colaborativo</span>
-            <span class="pill">📁 Evidencias</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 3 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 4 / 15 · OBJETIVO GENERAL
-    ========================== -->
-    <section id="step-4" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🎯</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Objetivo general
-          </h2>
-        </div>
-
-        <div class="glass-card p-8 md:p-12 rounded-3xl text-center">
-          <div class="text-2xl md:text-4xl font-extrabold leading-snug text-white/95">
-            Diseñar un proyecto de innovación tecnológica para promover el pensamiento matemático y computacional en 4.º de Primaria,
-            mediante una unidad didáctica con robótica educativa centrada en gamificación.
-          </div>
-
-          <div class="mt-10 flex justify-center gap-3 flex-wrap">
-            <span class="pill">📐 Matemáticas</span>
-            <span class="pill">🧠 Computacional</span>
-            <span class="pill">🤖 Robótica</span>
-            <span class="pill">🎮 Gamificación</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 4 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 5 / 15 · OBJETIVOS ESPECÍFICOS
-    ========================== -->
-    <section id="step-5" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🧭</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Objetivos específicos
-          </h2>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-3">💻</div>
-              <div class="font-extrabold text-xl text-cyan-200">Entorno gamificado</div>
-              <div class="text-white/85 mt-2">Diseñar y programar el recurso en GitHub Pages.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-3">🧩</div>
-              <div class="font-extrabold text-xl text-purple-200">Sesiones integradas</div>
-              <div class="text-white/85 mt-2">Crear 4–6 sesiones que integren PC + Matemáticas.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-3">🤝</div>
-              <div class="font-extrabold text-xl text-green-200">Cooperación</div>
-              <div class="text-white/85 mt-2">Fomentar trabajo cooperativo en equipos pequeños.</div>
-            </div>
-          </div>
-
-          <div class="mt-8 flex justify-center gap-3 flex-wrap">
-            <span class="pill">📁 Portafolio</span>
-            <span class="pill">🧪 Ciclo iterativo</span>
-            <span class="pill">🧠 Evidencias</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 5 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 6 / 15 · FUNDAMENTOS
-    ========================== -->
-    <section id="step-6" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">📚</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Fundamentos del proyecto
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            El diseño integra pensamiento computacional, pensamiento matemático, trabajo colaborativo y robótica educativa.
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-4 gap-5">
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-4xl">🧠</div>
-              <div class="font-extrabold mt-2 text-cyan-200">PC</div>
-              <div class="text-white/80 mt-2 text-sm">Descomposición · patrones · abstracción · algoritmos · razonamiento</div>
-            </div>
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-4xl">📐</div>
-              <div class="font-extrabold mt-2 text-purple-200">PM</div>
-              <div class="text-white/80 mt-2 text-sm">Número · medida · geometría · datos · variacional</div>
-            </div>
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-4xl">🤝</div>
-              <div class="font-extrabold mt-2 text-green-200">Colaboración</div>
-              <div class="text-white/80 mt-2 text-sm">Roles · coautoría · coordinación · comunicación</div>
-            </div>
-            <div class="glass-card rounded-2xl p-6">
-              <div class="text-4xl">🤖</div>
-              <div class="font-extrabold mt-2 text-yellow-200">Robótica</div>
-              <div class="text-white/80 mt-2 text-sm">Concreto–simbólico · medir · probar · ajustar</div>
-            </div>
-          </div>
-
-          <div class="mt-8 text-center text-white/85">
-            <span class="pill">🔁 Construir</span>
-            <span class="pill">🧩 Programar</span>
-            <span class="pill">🧪 Probar</span>
-            <span class="pill">🔧 Mejorar</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 6 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 7 / 15 · CONTEXTO
-    ========================== -->
-    <section id="step-7" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">📍</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Contexto de implementación
-          </h2>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🏙️</div>
-              <div class="font-extrabold text-xl text-cyan-200">Bucaramanga (Colombia)</div>
-              <div class="text-white/85 mt-2">
-                Entorno urbano, diversidad socioeconómica y oportunidad para reducir brechas en habilidades digitales.
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🏫</div>
-              <div class="font-extrabold text-xl text-purple-200">Microcentro de aprendizaje</div>
-              <div class="text-white/85 mt-2">
-                Grupos reducidos (6–8), conectividad, dispositivos y kits de robótica.
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 text-center">
-            <span class="pill">🧪 STEAM</span>
-            <span class="pill">🪑 Mobiliario flexible</span>
-            <span class="pill">📶 Conectividad</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 7 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 8 / 15 · DESTINATARIOS + INCLUSIÓN
-    ========================== -->
-    <section id="step-8" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">👧👦</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Destinatarios e inclusión
-          </h2>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🧒</div>
-              <div class="font-extrabold text-xl text-cyan-200">8–10 años</div>
-              <div class="text-white/85 mt-2">Niños y niñas de 3º y 4º de primaria.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🎲</div>
-              <div class="font-extrabold text-xl text-purple-200">Aprender con retos</div>
-              <div class="text-white/85 mt-2">Narrativa, manipulación, experimentación y trabajo en equipo.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">♿</div>
-              <div class="font-extrabold text-xl text-green-200">NEAE</div>
-              <div class="text-white/85 mt-2">Consignas visuales, roles flexibles, tiempos extendidos y andamiaje paso a paso.</div>
-            </div>
-          </div>
-
-          <div class="mt-8 text-center">
-            <span class="pill">🧩 Segmentación</span>
-            <span class="pill">🧠 Autorregulación</span>
-            <span class="pill">🧰 Material manipulativo</span>
-            <span class="pill">📌 Guías pictográficas</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 8 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 9 / 15 · METODOLOGÍA (CICLO)
-    ========================== -->
-    <section id="step-9" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🔁</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Metodología
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Misiones auténticas con un ciclo iterativo para construir soluciones, validarlas y mejorarlas.
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-4 gap-5">
-            <div class="glass-card rounded-2xl p-7 text-center">
-              <div class="text-5xl">🧱</div>
-              <div class="font-extrabold text-xl mt-2 text-yellow-200">Construir</div>
-              <div class="text-white/80 mt-2 text-sm">Prototipo RoverBot</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7 text-center">
-              <div class="text-5xl">🧩</div>
-              <div class="font-extrabold text-xl mt-2 text-cyan-200">Programar</div>
-              <div class="text-white/80 mt-2 text-sm">Bloques, secuencias, control</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7 text-center">
-              <div class="text-5xl">🧪</div>
-              <div class="font-extrabold text-xl mt-2 text-purple-200">Probar</div>
-              <div class="text-white/80 mt-2 text-sm">Medir, registrar, observar</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7 text-center">
-              <div class="text-5xl">🔧</div>
-              <div class="font-extrabold text-xl mt-2 text-green-200">Mejorar</div>
-              <div class="text-white/80 mt-2 text-sm">Ajustes y depuración</div>
-            </div>
-          </div>
-
-          <div class="mt-8 flex justify-center gap-3 flex-wrap">
-            <span class="pill">🤝 Equipos 2–3</span>
-            <span class="pill">🧭 Roles</span>
-            <span class="pill">📁 Portafolio</span>
-            <span class="pill">🧠 Reflexión</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 9 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 10 / 15 · SECUENCIA DE MISIONES
-    ========================== -->
-    <section id="step-10" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🧭</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Secuencia de misiones
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Progresión desde ensamblaje y calibración hasta retos con control, sensor y colaboración.
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🌌</div>
-              <div class="font-extrabold text-2xl text-cyan-200">Narrativa espacial</div>
-              <div class="text-white/85 mt-2">
-                Misiones contextualizadas que mantienen motivación y sentido de propósito.
-              </div>
-              <div class="mt-5 flex flex-wrap gap-2">
-                <span class="pill">🎮 Gamificación</span>
-                <span class="pill">🏅 Insignias</span>
-                <span class="pill">🔓 Desbloqueo</span>
-              </div>
-            </div>
-
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">📈</div>
-              <div class="font-extrabold text-2xl text-purple-200">Complejidad creciente</div>
-              <div class="text-white/85 mt-2">
-                Del control de variables (distancia/tiempo) a condicionales, bucles, sensor y tareas de equipo.
-              </div>
-              <div class="mt-5 flex flex-wrap gap-2">
-                <span class="pill">📏 Medición</span>
-                <span class="pill">📊 Registro</span>
-                <span class="pill">🧠 Depuración</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 grid md:grid-cols-4 gap-4 text-center">
-            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
-              <div class="text-5xl mb-2">🛠️</div>
-              <div class="font-extrabold text-yellow-200">Misión 0</div>
-              <div class="text-white/80 text-sm mt-1">Ensamblaje + conexión</div>
-            </div>
-            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
-              <div class="text-5xl mb-2">🏔️</div>
-              <div class="font-extrabold text-orange-200">Misión 1</div>
-              <div class="text-white/80 text-sm mt-1">Calibración / pruebas</div>
-            </div>
-            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
-              <div class="text-5xl mb-2">🌀</div>
-              <div class="font-extrabold text-blue-200">Misión 2</div>
-              <div class="text-white/80 text-sm mt-1">Conexión / avance guiado</div>
-            </div>
-            <div class="glass-card rounded-2xl p-6 hover:scale-[1.02] transition">
-              <div class="text-5xl mb-2">🕳️</div>
-              <div class="font-extrabold text-fuchsia-200">Misión 3</div>
-              <div class="text-white/80 text-sm mt-1">Sensor / condición</div>
-            </div>
-          </div>
-
-          <div class="mt-4 grid md:grid-cols-1 gap-4 text-center">
-            <div class="glass-card rounded-2xl p-6 hover:scale-[1.01] transition">
-              <div class="text-5xl mb-2">🚛</div>
-              <div class="font-extrabold text-green-200">Misión 4</div>
-              <div class="text-white/80 text-sm mt-1">Transferencia / colaboración</div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 10 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 11 / 15 · PRODUCTO (6 TARJETAS + MODAL IFRAME)
-    ========================== -->
-    <section id="step-11" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-8">
-          <div class="text-7xl mb-4 animate-float">🧪</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Producto tecnopedagógico (recurso digital)
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Se muestra el entorno gamificado: selecciona una tarjeta para abrir la sección correspondiente (se ejecuta en una pantalla superpuesta).
-          </p>
-        </div>
-
-        <div class="grid md:grid-cols-3 gap-6">
-
-          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 1 · Misión 0 (Ensamblaje)', 'https://maihoyos.github.io/exploradores/mision0.html')">
-            <div class="float-orb one"></div><div class="float-orb two"></div>
-            <div class="tag text-cyan-200">Tarjeta 1 · mision0.html</div>
-            <div class="mt-4 text-2xl font-extrabold">🛠️ Ensamblaje</div>
-            <div class="mt-2 text-white/80">Inicio + instrucciones + conexión.</div>
-          </button>
-
-          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 2 · Índice (Panel de misiones)', 'https://maihoyos.github.io/exploradores/index.html')">
-            <div class="float-orb one"></div><div class="float-orb two"></div>
-            <div class="tag text-purple-200">Tarjeta 2 · index.html</div>
-            <div class="mt-4 text-2xl font-extrabold">🧭 Panel</div>
-            <div class="mt-2 text-white/80">Navegación + progreso de misiones.</div>
-          </button>
-
-          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 3 · Misión 1', 'https://maihoyos.github.io/exploradores/mision1.html?reset=1770309136702')">
-            <div class="float-orb one"></div><div class="float-orb two"></div>
-            <div class="tag text-emerald-200">Tarjeta 3 · mision1</div>
-            <div class="mt-4 text-2xl font-extrabold">🏔️ Vectonia</div>
-            <div class="mt-2 text-white/80">Calibración y primeros retos.</div>
-          </button>
-
-          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 4 · Misión 2', 'https://maihoyos.github.io/exploradores/mision2.html?reset=1770309173677')">
-            <div class="float-orb one"></div><div class="float-orb two"></div>
-            <div class="tag text-blue-200">Tarjeta 4 · mision2</div>
-            <div class="mt-4 text-2xl font-extrabold">🌀 Zycurva</div>
-            <div class="mt-2 text-white/80">Avance guiado por retos.</div>
-          </button>
-
-          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 5 · Misión 3', 'https://maihoyos.github.io/exploradores/mision3.html?reset=1770309206648')">
-            <div class="float-orb one"></div><div class="float-orb two"></div>
-            <div class="tag text-fuchsia-200">Tarjeta 5 · mision3</div>
-            <div class="mt-4 text-2xl font-extrabold">🕳️ Sensorium</div>
-            <div class="mt-2 text-white/80">Condición + control con sensor.</div>
-          </button>
-
-          <button class="float-card p-6 text-left" onclick="openProductModal('Tarjeta 6 · Misión 4', 'https://maihoyos.github.io/exploradores/mision4.html?reset=1770309233412')">
-            <div class="float-orb one"></div><div class="float-orb two"></div>
-            <div class="tag text-yellow-200">Tarjeta 6 · mision4</div>
-            <div class="mt-4 text-2xl font-extrabold">🚛 Transferencia</div>
-            <div class="mt-2 text-white/80">Misión integradora colaborativa.</div>
-          </button>
-        </div>
-
-        <div class="mt-8 text-center">
-          <div class="flex justify-center gap-3 flex-wrap">
-            <span class="pill">🎮 Gamificación</span>
-            <span class="pill">🏅 Insignias</span>
-            <span class="pill">🧩 Andamiaje</span>
-            <span class="pill">📁 Evidencias</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 11 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 12 / 15 · PRUEBA PILOTO
-    ========================== -->
-    <section id="step-12" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🧪</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Prueba piloto y ajustes
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Pilotaje exploratorio del entorno gamificado para analizar claridad, coherencia y funcionalidad; ajustes derivados antes de una implementación a mayor escala.
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🔍</div>
-              <div class="font-extrabold text-xl text-cyan-200">Qué se analizó</div>
-              <div class="text-white/85 mt-2">Claridad, coherencia y funcionalidad del recurso.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🧭</div>
-              <div class="font-extrabold text-xl text-purple-200">Cómo se usó</div>
-              <div class="text-white/85 mt-2">Recorrido de misiones, andamiajes y navegación.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🔧</div>
-              <div class="font-extrabold text-xl text-green-200">Qué se ajustó</div>
-              <div class="text-white/85 mt-2">Mejoras para facilitar comprensión y usabilidad.</div>
-            </div>
-          </div>
-
-          <div class="mt-8 text-center">
-            <span class="pill">✅ Listo para implementación futura</span>
-            <span class="pill">♻️ Iteración y mejora</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 12 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 13 / 15 · EVALUACIÓN (APRENDIZAJE)
-    ========================== -->
-    <section id="step-13" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">📊</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Evaluación del aprendizaje
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Evaluación formativa con evidencias de proceso y producto (portafolio).
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">📋</div>
-              <div class="font-extrabold text-2xl text-cyan-200">Formativa</div>
-              <div class="text-white/85 mt-2">
-                Seguimiento durante las misiones: observación, retroalimentación y mejora.
-              </div>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <span class="pill">🧠 Depuración</span>
-                <span class="pill">📏 Medición</span>
-                <span class="pill">🧾 Registro</span>
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">📁</div>
-              <div class="font-extrabold text-2xl text-purple-200">Portafolio</div>
-              <div class="text-white/85 mt-2">
-                Artefactos: código, prototipos, tablas/gráficas, capturas y narrativas reflexivas.
-              </div>
-              <div class="mt-4 flex flex-wrap gap-2">
-                <span class="pill">🧩 Código</span>
-                <span class="pill">📊 Datos</span>
-                <span class="pill">✍️ Reflexión</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 text-center">
-            <span class="pill">🎯 Criterios explícitos</span>
-            <span class="pill">🧠 Metacognición</span>
-            <span class="pill">🤝 Evidencias de coautoría</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 13 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 14 / 15 · CONCLUSIONES
-    ========================== -->
-    <section id="step-14" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">✅</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Conclusiones
-          </h2>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🤖</div>
-              <div class="font-extrabold text-2xl text-cyan-200">Aporte didáctico</div>
-              <div class="text-white/85 mt-2">
-                Propuesta transferible y escalable que integra robótica y gamificación para potenciar PC y PM en primaria.
-              </div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🧠</div>
-              <div class="font-extrabold text-2xl text-purple-200">Aprendizajes</div>
-              <div class="text-white/85 mt-2">
-                Fortalece resolución de problemas, colaboración, registro de evidencias y ciclos de mejora.
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-8 flex justify-center gap-3 flex-wrap">
-            <span class="pill">📐 Currículo</span>
-            <span class="pill">🧩 Programación por bloques</span>
-            <span class="pill">🧪 Ciclo iterativo</span>
-            <span class="pill">🎮 Motivación</span>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="nextStep()" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">Siguiente →</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 14 / 15</div>
-      </div>
-    </section>
-
-    <!-- =========================
-         STEP 15 / 15 · LIMITACIONES + PROSPECTIVA
-    ========================== -->
-    <section id="step-15" class="step-container min-h-screen hidden items-center justify-center p-6">
-      <div class="max-w-6xl w-full animate-fade-in-scale">
-        <div class="text-center mb-6">
-          <div class="text-7xl mb-3 animate-float">🔭</div>
-          <h2 class="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-500 bg-clip-text text-transparent text-glow">
-            Limitaciones y prospectiva
-          </h2>
-          <p class="mt-3 text-white/80 text-lg max-w-4xl mx-auto">
-            Cierre con mirada de futuro: implementación ampliada y evaluación en contexto escolar formal.
-          </p>
-        </div>
-
-        <div class="glass-card p-7 md:p-10 rounded-3xl">
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">⏳</div>
-              <div class="font-extrabold text-xl text-yellow-200">Limitación</div>
-              <div class="text-white/85 mt-2">Pilotaje exploratorio y necesidad de implementación a mayor escala.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">🏫</div>
-              <div class="font-extrabold text-xl text-cyan-200">Futuro 1</div>
-              <div class="text-white/85 mt-2">Aplicación en aula formal con grupos completos y continuidad.</div>
-            </div>
-            <div class="glass-card rounded-2xl p-7">
-              <div class="text-4xl mb-2">📈</div>
-              <div class="font-extrabold text-xl text-purple-200">Futuro 2</div>
-              <div class="text-white/85 mt-2">Evaluación longitudinal: progreso en PC, PM y colaboración.</div>
-            </div>
-          </div>
-
-          <div class="mt-8 text-center">
-            <div class="glass-card rounded-2xl p-6 inline-block">
-              <div class="text-2xl font-extrabold text-green-200">✨ Gracias</div>
-              <div class="text-white/80 mt-1">Quedo atenta a sus preguntas.</div>
-            </div>
-          </div>
-
-          <div class="mt-8 flex justify-center gap-3 flex-wrap">
-            <button onclick="goToStep(1)"
-              class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">
-              ↺ Volver al inicio
-            </button>
-            <button onclick="goToStep(11)"
-              class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-bold btn-3d btn-premium">
-              🧪 Volver al producto
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-6 flex justify-between">
-          <button onclick="prevStep()" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-bold btn-3d btn-premium">← Anterior</button>
-          <button onclick="goToStep(1)" class="px-8 py-4 bg-green-600 hover:bg-green-700 rounded-2xl font-bold btn-3d btn-premium">Finalizar ✔</button>
-        </div>
-
-        <div class="mt-4 step-counter text-center">Diapositiva 15 / 15</div>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- Modal Producto (iframe) -->
-  <div id="product-modal" aria-hidden="true">
-    <div id="product-modal-backdrop"></div>
-
-    <div class="product-modal-panel">
-      <div class="product-modal-topbar">
-        <div class="product-modal-title" id="product-modal-title">Producto</div>
-
-        <div class="product-modal-actions">
-          <a id="product-modal-opennew"
-             class="product-modal-btn btn-premium"
-             href="#"
-             target="_blank"
-             rel="noopener noreferrer"
-             title="Abrir en una pestaña nueva">
-            ↗ Abrir
-          </a>
-
-          <button id="product-modal-close" class="product-modal-btn btn-premium" aria-label="Cerrar (ESC)">
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <iframe id="product-modal-iframe" class="product-iframe" title="Producto Zython" loading="lazy"></iframe>
-    </div>
-  </div>
-
-  <script>
-    'use strict';
-
-    // ====== ESTRELLAS ======
-    function createStars() {
-      const starsContainer = document.getElementById('stars');
-      if (!starsContainer) return;
-      starsContainer.innerHTML = '';
-      for (let i = 0; i < 150; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        const size = Math.random() * 3 + 1;
-        star.style.width = size + 'px';
-        star.style.height = size + 'px';
-        star.style.animationDelay = Math.random() * 3 + 's';
-        starsContainer.appendChild(star);
-      }
-    }
-
-    document.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 10;
-      const y = (e.clientY / window.innerHeight - 0.5) * 10;
-      const stars = document.getElementById('stars');
-      if (stars) stars.style.transform = `translate(${x}px, ${y}px)`;
-    });
-
-    // ====== NAVEGACIÓN STEPS ======
-    const TOTAL_STEPS = 15;
-    let currentStep = 1;
-
-    const subtitleMap = {
-      1: 'Portada',
-      2: 'Problema educativo',
-      3: 'Propuesta de innovación',
-      4: 'Objetivo general',
-      5: 'Objetivos específicos',
-      6: 'Fundamentos del proyecto',
-      7: 'Contexto de implementación',
-      8: 'Destinatarios e inclusión',
-      9: 'Metodología',
-      10: 'Secuencia de misiones',
-      11: 'Producto tecnopedagógico',
-      12: 'Prueba piloto y ajustes',
-      13: 'Evaluación del aprendizaje',
-      14: 'Conclusiones',
-      15: 'Limitaciones y prospectiva'
-    };
-
-    function showStep(n) {
-      for (let i = 1; i <= TOTAL_STEPS; i++) {
-        const el = document.getElementById(`step-${i}`);
-        if (!el) continue;
-        el.classList.add('hidden');
-        el.classList.remove('flex');
-      }
-      const cur = document.getElementById(`step-${n}`);
-      if (cur) {
-        cur.classList.remove('hidden');
-        cur.classList.add('flex');
-      }
-      currentStep = n;
-      updateProgress();
-      updateHeader();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function goToStep(n) {
-      const target = Math.min(Math.max(n, 1), TOTAL_STEPS);
-      showStep(target);
-    }
-
-    function nextStep() {
-      if (currentStep < TOTAL_STEPS) showStep(currentStep + 1);
-    }
-
-    function prevStep() {
-      if (currentStep > 1) showStep(currentStep - 1);
-    }
-
-    function updateProgress() {
-      const pct = Math.round((currentStep - 1) / (TOTAL_STEPS - 1) * 100);
-      const bar = document.getElementById('progress-bar');
-      const text = document.getElementById('progress-text');
-      if (bar) bar.style.width = pct + '%';
-      if (text) text.textContent = pct + '%';
-    }
-
-    function updateHeader() {
-      const sub = document.getElementById('header-subtitle');
-      if (!sub) return;
-      const title = subtitleMap[currentStep] || 'En progreso';
-      sub.textContent = `Diapositiva ${currentStep} · ${title}`;
-    }
-
-    // Atajos teclado
-    document.addEventListener('keydown', (e) => {
-      // si modal abierto, no interferir (excepto Escape lo gestiona el modal)
-      const modal = document.getElementById('product-modal');
-      const modalOpen = modal && modal.classList.contains('show');
-      if (modalOpen) return;
-
-      if (e.key === 'ArrowRight' || e.key === 'PageDown') nextStep();
-      if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevStep();
-      if (e.key === 'Home') goToStep(1);
-      if (e.key === 'End') goToStep(TOTAL_STEPS);
-    });
-
-    // ====== MODAL PRODUCTO ======
-    function openProductModal(title, url) {
-      const modal = document.getElementById('product-modal');
-      const backdrop = document.getElementById('product-modal-backdrop');
-      const closeBtn = document.getElementById('product-modal-close');
-      const iframe = document.getElementById('product-modal-iframe');
-      const ttl = document.getElementById('product-modal-title');
-      const openNew = document.getElementById('product-modal-opennew');
-
-      if (!modal || !backdrop || !closeBtn || !iframe || !ttl || !openNew) return;
-
-      ttl.textContent = title || 'Producto Zython';
-      iframe.src = url;
-      openNew.href = url;
-
-      modal.classList.add('show');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-
-      closeBtn.focus();
-
-      if (!modal.dataset.bound) {
-        closeBtn.addEventListener('click', closeProductModal);
-        backdrop.addEventListener('click', closeProductModal);
-        document.addEventListener('keydown', (e) => {
-          const isOpen = modal.classList.contains('show');
-          if (!isOpen) return;
-          if (e.key === 'Escape') closeProductModal();
+    <script>
+        // Configuration
+        const TOTAL_SLIDES = 12;
+        let currentSlide = 1;
+        let isTransitioning = false;
+        let audioContext = null;
+        let ambientOscillators = [];
+        let ambientGain = null;
+        let isSoundEnabled = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            createParticles();
+            createProgressDots();
+            updateNavigation();
         });
-        modal.dataset.bound = '1';
-      }
-    }
 
-    function closeProductModal() {
-      const modal = document.getElementById('product-modal');
-      const iframe = document.getElementById('product-modal-iframe');
-      if (!modal || !iframe) return;
+        // Create stars background
+        function createStars() {
+            const container = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    width: ${Math.random() * 2 + 1}px;
+                    height: ${Math.random() * 2 + 1}px;
+                    --opacity: ${Math.random() * 0.5 + 0.3};
+                    --duration: ${Math.random() * 3 + 2}s;
+                    animation-delay: ${Math.random() * 3}s;
+                `;
+                container.appendChild(star);
+            }
+        }
 
-      modal.classList.remove('show');
-      modal.setAttribute('aria-hidden', 'true');
-      iframe.src = '';
-      document.body.style.overflow = '';
-    }
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    left: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * 15}s;
+                    animation-duration: ${Math.random() * 10 + 15}s;
+                `;
+                container.appendChild(particle);
+            }
+        }
 
-    // ====== INIT ======
-    document.addEventListener('DOMContentLoaded', () => {
-      createStars();
-      showStep(1);
-    });
-  </script>
+        // Create progress dots
+        function createProgressDots() {
+            const container = document.getElementById('progressDots');
+            for (let i = 1; i <= TOTAL_SLIDES; i++) {
+                const dot = document.createElement('div');
+                dot.className = `progress-dot ${i === 1 ? 'active' : ''}`;
+                dot.onclick = () => goToSlide(i);
+                container.appendChild(dot);
+            }
+        }
+
+        // Navigation functions
+        function nextSlide() {
+            if (currentSlide < TOTAL_SLIDES && !isTransitioning) {
+                changeSlide(currentSlide + 1, 'next');
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1 && !isTransitioning) {
+                changeSlide(currentSlide - 1, 'prev');
+            }
+        }
+
+        function goToSlide(slideNum) {
+            if (slideNum !== currentSlide && !isTransitioning) {
+                const direction = slideNum > currentSlide ? 'next' : 'prev';
+                changeSlide(slideNum, direction);
+            }
+        }
+
+        function changeSlide(newSlide, direction) {
+            isTransitioning = true;
+
+            // Play transition sound
+            playTransitionSound();
+
+            // Get elements
+            const currentSlideEl = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+            const newSlideEl = document.querySelector(`.slide[data-slide="${newSlide}"]`);
+            const overlay = document.getElementById('transitionOverlay');
+
+            // Animate overlay
+            overlay.classList.remove('active-next', 'active-prev');
+            overlay.classList.add(direction === 'next' ? 'active-next' : 'active-prev');
+
+            // Animate current slide out
+            currentSlideEl.classList.remove('active');
+            currentSlideEl.classList.add(direction === 'next' ? 'exit-next' : 'exit-prev');
+
+            // Show new slide after delay
+            setTimeout(() => {
+                currentSlideEl.classList.remove('exit-next', 'exit-prev');
+                currentSlideEl.style.display = 'none';
+                
+                newSlideEl.classList.add('active');
+                currentSlide = newSlide;
+                updateNavigation();
+
+                setTimeout(() => {
+                    isTransitioning = false;
+                    overlay.classList.remove('active-next', 'active-prev');
+                }, 300);
+            }, 400);
+        }
+
+        function updateNavigation() {
+            // Update counter
+            document.getElementById('slideCounter').textContent = `${currentSlide} / ${TOTAL_SLIDES}`;
+
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === TOTAL_SLIDES;
+
+            // Update dots
+            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index + 1 === currentSlide);
+            });
+        }
+
+        // Audio functions
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleSound() {
+            initAudio();
+            
+            if (isSoundEnabled) {
+                stopAmbientSound();
+                document.getElementById('soundIcon').textContent = '🔇';
+                document.getElementById('soundText').textContent = 'Activar Sonido';
+                document.getElementById('soundBtn').classList.remove('active');
+            } else {
+                startAmbientSound();
+                document.getElementById('soundIcon').textContent = '🔊';
+                document.getElementById('soundText').textContent = 'Silenciar';
+                document.getElementById('soundBtn').classList.add('active');
+            }
+            isSoundEnabled = !isSoundEnabled;
+        }
+
+        function startAmbientSound() {
+            // Create gain node for volume control
+            ambientGain = audioContext.createGain();
+            ambientGain.gain.value = 0.08; // Very low volume
+            ambientGain.connect(audioContext.destination);
+
+            // Create multiple oscillators for rich ambient sound
+            const frequencies = [55, 82.5, 110, 165]; // Low harmonic frequencies
+            
+            frequencies.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                const oscGain = audioContext.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                oscGain.gain.value = 0.3 / (index + 1); // Decreasing volume for higher harmonics
+                
+                // Add subtle LFO modulation
+                const lfo = audioContext.createOscillator();
+                const lfoGain = audioContext.createGain();
+                lfo.type = 'sine';
+                lfo.frequency.value = 0.1 + (index * 0.05);
+                lfoGain.gain.value = freq * 0.02;
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start();
+                
+                osc.connect(oscGain);
+                oscGain.connect(ambientGain);
+                osc.start();
+                
+                ambientOscillators.push({ osc, lfo, oscGain });
+            });
+        }
+
+        function stopAmbientSound() {
+            ambientOscillators.forEach(({ osc, lfo }) => {
+                osc.stop();
+                lfo.stop();
+            });
+            ambientOscillators = [];
+        }
+
+        function playTransitionSound() {
+            if (!isSoundEnabled) return;
+            initAudio();
+
+            // Create a subtle whoosh sound
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioContext.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2000, audioContext.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(500, audioContext.currentTime + 0.3);
+
+            gain.gain.setValueAtTime(0, audioContext.currentTime);
+            gain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowRight':
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    prevSlide();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    goToSlide(1);
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    goToSlide(TOTAL_SLIDES);
+                    break;
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+        }
+    </script>
 </body>
 </html>
